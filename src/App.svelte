@@ -3,6 +3,7 @@
   import { RefreshCw } from '@lucide/svelte';
   import { toast } from '../vendor/ewo/elements/toaster.js';
   import { api, type SetSummary } from './lib/api.ts';
+  import { ensureTint, tintStyle } from './lib/tint.svelte.ts';
   import SetList from './components/SetList.svelte';
   import SetView from './components/SetView.svelte';
 
@@ -16,6 +17,11 @@
 
   const summary = $derived(sets.find((s) => s.id === selected) ?? null);
   const waiting = $derived(sets.filter((s) => s.status === 'waiting').length);
+
+  // Every cover is tinted with its own set's colour, and the open set tints the page.
+  $effect(() => {
+    for (const set of sets) ensureTint(set.id);
+  });
 
   function select(id: string | null) {
     if (id === selected) return;
@@ -73,9 +79,9 @@
   });
 </script>
 
-<div class="app" class:open={selected !== null}>
+<div class="app tinted" class:open={selected !== null} style={tintStyle(selected)}>
   <header class="bar">
-    <a class="brand" href="/" onclick={(e) => (e.preventDefault(), select(null))}>Encore</a>
+    <a class="brand" href="/" onclick={(e) => (e.preventDefault(), select(null))}>Encore<span class="dot">.</span></a>
     {#if loaded}
       <span class="count mono">{waiting} waiting</span>
     {/if}
@@ -125,10 +131,15 @@
   }
 
   .brand {
-    font-weight: 650;
-    font-size: var(--ewo-text-lg);
-    letter-spacing: -0.01em;
+    font-weight: 900;
+    font-size: 21px;
+    letter-spacing: -0.035em;
     text-decoration: none;
+  }
+
+  .dot {
+    color: var(--tint);
+    transition: color var(--ewo-dur-3) var(--ewo-ease);
   }
 
   .count {

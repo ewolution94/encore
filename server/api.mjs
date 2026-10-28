@@ -10,6 +10,7 @@
 //   GET  /api/status
 
 import { createReadStream } from 'node:fs';
+import { stat } from 'node:fs/promises';
 
 const MAX_BODY = 1024 * 1024;
 const ID = /^[\w-]{11}$/;
@@ -72,7 +73,14 @@ export function createApi(encore) {
       if (parts.length === 3 && parts[2] === 'thumb' && method === 'GET') {
         const file = encore.thumb(id);
         if (!file) return json(res, 404, { error: 'not-found' });
-        res.writeHead(200, { 'content-type': 'image/jpeg', 'cache-control': 'private, max-age=86400' });
+        // Asked again every time, answered 304 while the file is the same: Pinchflat may replace it.
+        const modified = (await stat(file)).mtime.toUTCString();
+        const headers = { 'content-type': 'image/jpeg', 'cache-control': 'private, no-cache', 'last-modified': modified };
+        if (req.headers['if-modified-since'] === modified) {
+          res.writeHead(304, headers).end();
+          return true;
+        }
+        res.writeHead(200, headers);
         createReadStream(file).on('error', () => res.destroy()).pipe(res);
         return true;
       }

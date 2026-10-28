@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatTime } from '../../shared/tracklist.mjs';
   import { api, type SetSummary } from '../lib/api.ts';
+  import { tintStyle } from '../lib/tint.svelte.ts';
 
   let { sets, loaded, selected, onselect }: { sets: SetSummary[]; loaded: boolean; selected: string | null; onselect: (id: string) => void } = $props();
 
@@ -31,12 +32,12 @@
 {:else}
   {#each groups as group (group.key)}
     <section>
-      <h2 class="label">{group.label}<span class="n mono">{group.sets.length}</span></h2>
+      <h2 class="group">{group.label}<span class="n">{group.sets.length}</span></h2>
       <ul>
         {#each group.sets as set (set.id)}
           <li>
-            <button class="row" class:active={set.id === selected} aria-current={set.id === selected ? 'true' : undefined} onclick={() => onselect(set.id)}>
-              <img src={api.thumb(set.id)} alt="" width="96" height="54" loading="lazy" />
+            <button class="row tinted" class:active={set.id === selected} style={tintStyle(set.id)} aria-current={set.id === selected ? 'true' : undefined} onclick={() => onselect(set.id)}>
+              <span class="cover"><img src={api.thumb(set.id)} alt="" width="54" height="54" loading="lazy" /></span>
               <span class="text">
                 <span class="title">{set.album || set.title}</span>
                 <span class="meta">
@@ -54,22 +55,26 @@
 
 <style>
   section {
-    padding: var(--ewo-space-3) var(--ewo-space-2) var(--ewo-space-2);
+    padding: var(--ewo-space-4) 0 var(--ewo-space-2);
   }
 
-  h2 {
+  .group {
     display: flex;
     gap: 8px;
-    padding: 0 var(--ewo-space-2) var(--ewo-space-2);
+    padding: 0 var(--ewo-space-4) var(--ewo-space-2);
+    font-size: var(--ewo-text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ewo-fg-3);
   }
 
   .n {
-    color: var(--ewo-fg-4);
+    font-weight: 500;
   }
 
   ul {
     display: grid;
-    gap: 2px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -77,13 +82,12 @@
 
   .row {
     display: grid;
-    grid-template-columns: 96px minmax(0, 1fr);
-    gap: var(--ewo-space-3);
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 14px;
     align-items: center;
     width: 100%;
-    padding: 6px;
+    padding: 8px var(--ewo-space-4);
     border: 0;
-    border-radius: var(--ewo-r-md);
     background: transparent;
     text-align: left;
   }
@@ -93,21 +97,18 @@
   }
 
   .row.active {
-    background: var(--ewo-bg-raised);
-    box-shadow: 0 0 0 1px var(--ewo-line);
+    background: var(--ewo-bg);
+    box-shadow: inset 3px 0 0 var(--tint);
   }
 
-  img {
-    width: 96px;
+  .cover {
+    width: 54px;
     height: 54px;
-    object-fit: cover;
-    border-radius: var(--ewo-r-sm);
-    background: var(--ewo-fill-2);
   }
 
   .text {
     display: grid;
-    gap: 2px;
+    gap: 3px;
     min-width: 0;
   }
 
@@ -118,8 +119,9 @@
     line-clamp: 2;
     -webkit-box-orient: vertical;
     font-size: var(--ewo-text-sm);
-    font-weight: 500;
-    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
   }
 
   .meta {
@@ -134,7 +136,8 @@
   }
 
   .busy {
-    color: var(--ewo-fg);
+    color: var(--tint);
+    font-weight: 600;
   }
 
   .empty {

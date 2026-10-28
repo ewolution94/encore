@@ -30,7 +30,7 @@
   </li>
   {#each tracks as track, i}
     {@const own = issues.get(i) ?? []}
-    <li class="row" class:bad={own.some((x) => x.level === 'error')}>
+    <li class="row" id={`track-${i}`} class:bad={own.some((x) => x.level === 'error')}>
       <span class="n mono">{i + 1}</span>
       <span class="time">
         <TimeField value={track.start} {long} label={`Start of track ${i + 1}`} invalid={own.some((x) => x.code === 'order' || x.code === 'end' || x.code === 'trim' || x.code === 'time')} onchange={(start) => onedit(i, { start })} />
@@ -66,23 +66,38 @@
 
   .head {
     padding-bottom: 2px;
-    font-family: var(--ewo-mono);
     font-size: var(--ewo-text-2xs);
-    letter-spacing: 0.06em;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ewo-fg-3);
   }
 
   .right {
     text-align: right;
-    padding-right: 11px;
+    padding-right: 2px;
   }
 
+  /* Track numbers in the tint, like a sleeve's. */
   .n {
-    font-size: var(--ewo-text-xs);
-    color: var(--ewo-fg-3);
+    font-family: var(--ewo-sans);
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--tint);
     text-align: right;
-    padding-right: 4px;
+    padding-right: 6px;
+  }
+
+  .artist {
+    color: var(--ewo-fg-2);
+  }
+
+  .title {
+    font-weight: 700;
+  }
+
+  .row {
+    scroll-margin: 80px;
   }
 
   .row.bad .n {

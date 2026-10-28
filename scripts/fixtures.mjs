@@ -17,7 +17,11 @@ const ffmpeg = process.env.ENCORE_FFMPEG ?? 'ffmpeg';
 const exists = (file) => stat(file).then(() => true, () => false);
 
 await mkdir(to, { recursive: true });
-const hues = ['0x334155', '0x7c2d12', '0x14532d', '0x1e3a8a', '0x581c87', '0x713f12', '0x134e4a', '0x831843'];
+// Two stage lights per set, so the page's tint and the covers' duotone have something to work on.
+const lights = [
+  ['0xff3ea5', '0x3a49ff'], ['0xffb21c', '0xff4f1c'], ['0x18e0c8', '0x1c64ff'], ['0xa24dff', '0xff2d55'],
+  ['0xff2b2b', '0xff8a00'], ['0x1db954', '0x0b3d1f'], ['0xff7a1c', '0xffd51c'], ['0x1cd5ff', '0x6f3dff'],
+];
 const files = (await readdir(from)).filter((f) => f.endsWith('.info.json')).sort();
 for (const [i, name] of files.entries()) {
   const id = name.replace(/\.info\.json$/, '');
@@ -34,7 +38,12 @@ for (const [i, name] of files.entries()) {
   }
   const thumb = path.join(to, `${id}-thumb.jpg`);
   if (!(await exists(thumb))) {
-    await runFfmpeg(ffmpeg, ['-f', 'lavfi', '-i', `color=c=${hues[i % hues.length]}:s=640x360:d=1`, '-frames:v', '1', thumb]);
+    const [c0, c1] = lights[i % lights.length];
+    // prettier-ignore
+    await runFfmpeg(ffmpeg, [
+      '-f', 'lavfi', '-i', `gradients=s=640x360:c0=${c0}:c1=${c1}:c2=0x08080c:nb_colors=3:seed=${i + 1}:speed=0`,
+      '-vf', 'vignette=PI/3.2', '-frames:v', '1', thumb,
+    ]);
   }
   // Last, so the dev server never sees a set whose audio isn't made yet.
   await copyFile(path.join(from, name), path.join(to, name));

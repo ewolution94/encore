@@ -4,6 +4,7 @@
   import { toast } from '../../vendor/ewo/elements/toaster.js';
   import { checkTracks, formatTime, parseTracklist, type Issue, type Track } from '../../shared/tracklist.mjs';
   import { api, ApiError, type Draft, type SetDetail, type SetSummary, type Source } from '../lib/api.ts';
+  import SetStrip from './SetStrip.svelte';
   import TimeField from './TimeField.svelte';
   import TrackRows from './TrackRows.svelte';
 
@@ -138,6 +139,13 @@
     edited();
   }
 
+  /** From the strip: the track's row, scrolled into view, its title ready to type in. */
+  function pick(index: number) {
+    const row = document.getElementById(`track-${index}`);
+    row?.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    row?.querySelector<HTMLInputElement>('input.title')?.focus({ preventScroll: true });
+  }
+
   function addTrack() {
     if (!draft || !detail) return;
     const last = draft.tracks.at(-1)?.start ?? draft.trimIn;
@@ -182,9 +190,10 @@
     <p class="note">This set can’t be loaded. <button class="button" onclick={load}>Try again</button></p>
   {:else if detail && draft}
     <div class="scroll">
+      <div class="band" aria-hidden="true"></div>
       <header class="head">
         <button class="icon-button back" onclick={onback} aria-label="Back to the list"><ArrowLeft size={18} /></button>
-        <img src={api.thumb(id)} alt="" width="224" height="126" />
+        <span class="cover"><img src={api.thumb(id)} alt="" width="126" height="126" /></span>
         <div class="about">
           <h1>{detail.title}</h1>
           <p class="meta">
@@ -202,6 +211,8 @@
           </p>
         </div>
       </header>
+
+      <SetStrip tracks={draft.tracks} duration={detail.duration} trimIn={draft.trimIn} trimOut={draft.trimOut} issues={byIndex} onpick={pick} />
 
       {#if detail.missing}
         <p class="banner bad">The download is gone from staging, so this set can’t be published. Pinchflat’s page can download it again.</p>
@@ -303,32 +314,43 @@
     height: 100%;
   }
 
+  /* A grid with a gap, not margins between children: those wouldn't reach a child component's root
+     (Svelte scopes the selector), and the strip is one. */
   .scroll {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--ewo-space-5);
     overflow-y: auto;
-    padding: var(--ewo-space-5) var(--ewo-space-6) var(--ewo-space-6);
+    padding: var(--ewo-space-6) var(--ewo-space-7) var(--ewo-space-6);
   }
 
-  .scroll > * + * {
-    margin-top: var(--ewo-space-5);
+  /* The set's colour washes in from the top, like light on a sleeve. */
+  .band {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 220px;
+    background: linear-gradient(180deg, var(--tint-wash), transparent);
+    pointer-events: none;
   }
+
 
   .head {
+    position: relative;
     display: grid;
-    grid-template-columns: 224px minmax(0, 1fr);
-    gap: var(--ewo-space-4);
-    align-items: start;
+    grid-template-columns: 126px minmax(0, 1fr);
+    gap: var(--ewo-space-5);
+    align-items: end;
   }
+
 
   .back {
     display: none;
   }
 
-  .head img {
-    width: 224px;
+  .head .cover {
+    width: 126px;
     height: 126px;
-    object-fit: cover;
-    border-radius: var(--ewo-r-md);
-    background: var(--ewo-fill-2);
   }
 
   .about {
@@ -338,15 +360,17 @@
   }
 
   h1 {
-    font-size: var(--ewo-text-xl);
-    line-height: 1.2;
-    font-weight: 650;
-    letter-spacing: -0.01em;
+    font-size: 34px;
+    line-height: 1.02;
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
     overflow-wrap: anywhere;
   }
 
   .meta {
     font-size: var(--ewo-text-sm);
+    font-weight: 500;
     color: var(--ewo-fg-2);
   }
 
@@ -363,7 +387,7 @@
 
   .banner {
     padding: 10px 14px;
-    border-radius: var(--ewo-r-md);
+    border-left: 3px solid currentColor;
     font-size: var(--ewo-text-sm);
   }
 
@@ -375,7 +399,7 @@
   .names {
     display: grid;
     grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    gap: var(--ewo-space-2) var(--ewo-space-3);
+    gap: var(--ewo-space-2) var(--ewo-space-5);
   }
 
   .names label {
@@ -404,29 +428,33 @@
   .chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px 18px;
   }
 
+  /* Sources as the sleeve's credits: the chosen one underlined in the tint. */
   .chip {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     gap: 6px;
     min-height: 32px;
-    padding: 0 12px;
-    border: 1px solid var(--ewo-line);
-    border-radius: var(--ewo-r-pill);
+    padding: 6px 1px 4px;
+    border: 0;
+    border-bottom: 2px solid transparent;
     background: transparent;
     font-size: var(--ewo-text-sm);
+    font-weight: 500;
+    color: var(--ewo-fg-2);
   }
 
   .chip:hover {
-    background: var(--ewo-fill);
+    color: var(--ewo-fg);
+    border-bottom-color: var(--ewo-line-strong);
   }
 
   .chip.on {
-    border-color: var(--ewo-fg);
-    background: var(--ewo-fg);
-    color: var(--ewo-bg);
+    color: var(--ewo-fg);
+    font-weight: 700;
+    border-bottom-color: var(--tint);
   }
 
   .count {
@@ -518,14 +546,13 @@
   .progress .track {
     height: 4px;
     overflow: hidden;
-    border-radius: 2px;
     background: var(--ewo-fill-2);
   }
 
   .fill {
     display: block;
     height: 100%;
-    background: var(--ewo-fg);
+    background: var(--tint);
     transform-origin: left;
     transition: transform 0.6s var(--ewo-ease);
   }
@@ -540,26 +567,26 @@
       padding: var(--ewo-space-3) var(--ewo-space-4) var(--ewo-space-5);
     }
 
+    /* The back arrow on its own line, then the cover beside the title. */
     .head {
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: var(--ewo-space-2) var(--ewo-space-4);
+      align-items: start;
     }
 
     .back {
       display: inline-grid;
-      margin-left: -6px;
+      grid-column: 1 / -1;
+      margin-left: -8px;
     }
 
-    .head img {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
+    .head .cover {
+      width: 96px;
+      height: 96px;
     }
 
-    .about {
-      grid-column: 1 / -1;
-      grid-row: 3;
+    h1 {
+      font-size: 24px;
     }
 
     .actions {

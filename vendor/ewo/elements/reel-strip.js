@@ -1,41 +1,50 @@
 //#region packages/elements/src/reel-strip.ts
-function e(e, t = -1, n = Math.random) {
+function e() {
+	return globalThis.crypto.getRandomValues(/* @__PURE__ */ new Uint32Array(1))[0];
+}
+function t(t, n = e) {
+	if (!Number.isInteger(t) || t < 1 || t > 4294967296) throw RangeError("fairInt needs an integer 1 ≤ n ≤ 2^32");
+	let r = Math.floor(4294967296 / t) * t, i = n() >>> 0;
+	for (; i >= r;) i = n() >>> 0;
+	return i % t;
+}
+function n(e, n = -1, r) {
 	if (e <= 0) return -1;
 	if (e === 1) return 0;
-	let r = t >= 0 && t < e, i = Math.floor(n() * (r ? e - 1 : e));
-	return r && i >= t ? i + 1 : i;
+	let i = n >= 0 && n < e, a = i ? e - 1 : e, o = r ? Math.floor(r() * a) : t(a);
+	return i && o >= n ? o + 1 : o;
 }
-function t(t, n, r, i = -1, a = Math.random) {
-	if (t <= 1) return [n];
-	let o = i >= 0 && i < t ? [i] : [];
-	for (; o.length < r - 1;) o.push(e(t, o.at(-1) ?? -1, a));
-	return o.at(-1) === n && o.push((n + 1) % t), o.push(n), o;
+function r(e, t, r, i = -1, a = Math.random) {
+	if (e <= 1) return [t];
+	let o = i >= 0 && i < e ? [i] : [];
+	for (; o.length < r - 1;) o.push(n(e, o.at(-1) ?? -1, a));
+	return o.at(-1) === t && o.push((t + 1) % e), o.push(t), o;
 }
-var n = {
+var i = {
 	pull: 140,
 	creep: 460,
 	hold: 1100,
 	duration: 2100
-}, r = (e) => Math.max(0, Math.min(1, e));
-function i({ from: e, to: t, duration: i = n.duration, tease: a = !1, hold: o = n.hold }) {
-	let s = Math.max(n.pull + 200, i), c = a && t - e >= 2, l = c ? t - 1 : t, u = s + (c ? o + n.creep : 0);
+}, a = (e) => Math.max(0, Math.min(1, e));
+function o({ from: e, to: t, duration: n = i.duration, tease: r = !1, hold: o = i.hold }) {
+	let s = Math.max(i.pull + 200, n), c = r && t - e >= 2, l = c ? t - 1 : t, u = s + (c ? o + i.creep : 0);
 	return {
 		total: u,
-		at: (i) => {
-			if (i <= 0) return e;
-			if (i >= u) return t;
-			if (i < n.pull) return e - .2 * Math.sin(Math.PI * i / n.pull);
-			if (i < s) {
-				let t = (i - n.pull) / (s - n.pull);
-				return e + (l - e) * (1 - (1 - t) ** 3) + .3 * Math.sin(Math.PI * r((t - .84) / .16));
+		at: (n) => {
+			if (n <= 0) return e;
+			if (n >= u) return t;
+			if (n < i.pull) return e - .2 * Math.sin(Math.PI * n / i.pull);
+			if (n < s) {
+				let t = (n - i.pull) / (s - i.pull);
+				return e + (l - e) * (1 - (1 - t) ** 3) + .3 * Math.sin(Math.PI * a((t - .84) / .16));
 			}
-			let a = i - s;
-			if (a < o) return l + .14 * Math.abs(Math.sin(a / o * Math.PI * 2.5));
-			let c = (a - o) / n.creep;
+			let r = n - s;
+			if (r < o) return l + .14 * Math.abs(Math.sin(r / o * Math.PI * 2.5));
+			let c = (r - o) / i.creep;
 			return l + 1 + 2.7 * (c - 1) ** 3 + 1.7 * (c - 1) ** 2;
 		},
 		teasing: c
 	};
 }
 //#endregion
-export { n as REEL, i as reelMotion, e as reelPick, t as reelStrip };
+export { i as REEL, e as cryptoWord, t as fairInt, o as reelMotion, n as reelPick, r as reelStrip };

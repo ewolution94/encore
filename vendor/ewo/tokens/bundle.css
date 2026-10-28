@@ -242,6 +242,12 @@
      itself stays monochrome, the cards bring the colour. */
   --ewo-project-pokeproxy:   light-dark(#0b7a55, #4fd6a5);
   --ewo-project-pokeproxy-2: light-dark(#8a6500, #f2cf4a);
+  /* Pitcher: a CDJ's amber readouts and Rekordbox's blue low band */
+  --ewo-project-pitcher:   light-dark(#8f5200, #f2a33a);
+  --ewo-project-pitcher-2: light-dark(#2d63e0, #5b8cff);
+  /* Encore: the sleeve's blue (look C), and a stage light's pink as the second */
+  --ewo-project-encore:   light-dark(#2541b8, #8aa2ff);
+  --ewo-project-encore-2: light-dark(#c2185b, #ff7ab8);
 }
 
 [data-ewo-project='clinch']  { --ewo-accent: var(--ewo-project-clinch);  --ewo-accent-2: var(--ewo-project-clinch-2); }
@@ -265,6 +271,8 @@
 [data-ewo-project='randomiser'] { --ewo-accent: var(--ewo-project-randomiser); --ewo-accent-2: var(--ewo-project-randomiser-2); }
 [data-ewo-project='curveextreme'] { --ewo-accent: var(--ewo-project-curveextreme); --ewo-accent-2: var(--ewo-project-curveextreme-2); }
 [data-ewo-project='pokeproxy'] { --ewo-accent: var(--ewo-project-pokeproxy); --ewo-accent-2: var(--ewo-project-pokeproxy-2); }
+[data-ewo-project='pitcher'] { --ewo-accent: var(--ewo-project-pitcher); --ewo-accent-2: var(--ewo-project-pitcher-2); }
+[data-ewo-project='encore'] { --ewo-accent: var(--ewo-project-encore); --ewo-accent-2: var(--ewo-project-encore-2); }
 [data-ewo-project='cantina'],
 [data-ewo-project='census'],
 [data-ewo-project='landing'] { --ewo-accent: var(--ewo-fg-2); --ewo-accent-2: var(--ewo-fg); }

@@ -23,6 +23,7 @@ export { EwoSettingsBasics, type LanguageChoice, type ThemeChoice as SettingsThe
 export { EwoEmblem } from './emblem';
 export { EwoEmblemMaker } from './emblem-maker';
 export { cleanEmblem, emblemFromSeed, emblemNames, emblemRanges, emblemSvg, isEmblem, randomEmblem, type EmblemThemeId } from './emblem-core';
+export { playerEmblem, relatedEmblem, shareEmblem, sharedEmblem, shareName, sharedName } from './emblem-shared';
 export { effectiveTheme, onThemeChange } from './base';
 export { askTilt, tilt, type TiltOptions } from './card-tilt';
 export { fanLayout, fanTransform, cardAt, flightTransform, type Fan, type FanOptions, type FanPlace } from './card-fan';

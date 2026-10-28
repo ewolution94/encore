@@ -70,3 +70,36 @@ so no one's music is in the repo.
 | `ENCORE_PUBLIC_URL` | `https://encore.ewolution.cloud` | links in that message |
 
 `/healthz` answers 503 when the scan loop hasn't finished a scan for a few minutes.
+
+## Deploy (NAS)
+
+A push to `release` is the deploy: CI (`.github/workflows/ci.yml`: type check, tests with ffmpeg,
+build, a smoke test of the production server) gates `docker-publish.yml`, which publishes
+`ghcr.io/ewolution94/encore:latest` for amd64 and arm64; the shared Watchtower pulls it.
+
+The stack is `deploy/portainer-stack.yml` (never `docker-compose.yml`, which builds locally):
+
+- **Encore** on the port from the workspace's registry, as root, because it writes into a DSM shared
+  folder (`/volume1/music/Encore` → `/library`), which Synology Drive syncs to the PC.
+- **Pinchflat** beside it, pinned by digest and without a published port. It watches the YouTube
+  playlist and downloads into the `staging` volume, which Encore reads. Its yt-dlp settings
+  (`/config/extras/yt-dlp-configs/base-config.txt`) add the top comments to each info JSON.
+- Stack variables, set in Portainer: `ENCORE_ACCESS_AUD` (the Access application's tag; until it's
+  set Encore answers nothing but `/healthz`), `ENCORE_TG_BOT_TOKEN` and `ENCORE_TG_CHAT_ID`.
+- encore.ewolution.cloud sits behind Cloudflare Access, with a bypass for the icons, the manifest and
+  the iOS launch images, which iOS fetches without the login cookie.
+
+Installed on a phone or a Mac, Encore opens on a splash of its icon and keeps an offline shell
+(`public/sw.js`); the sets always come from the server.
+
+## Layout
+
+```
+server/      the production server: scan, store, publish, API, Access, Telegram, Census
+shared/      the tracklist parser and checks, used by the server and the page
+src/         the page (Svelte 5): the sets list, the check view, settings, English and German
+scripts/     fixtures.mjs builds .dev/staging for the dev server
+tests/       node --test; real tracklists in tests/fixtures/info
+deploy/      the Portainer stack
+brand/       the icon (development/plans/app-icons, the Field set)
+```

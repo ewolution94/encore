@@ -62,8 +62,14 @@
     let timer: ReturnType<typeof setTimeout>;
     let stopped = false;
     // Faster while something is publishing, so its progress moves.
+    let first = true;
     const poll = async () => {
       await refresh();
+      if (first) {
+        first = false;
+        // The first screen is in (or the error): the splash can lift.
+        requestAnimationFrame(() => dispatchEvent(new Event('splash:ready')));
+      }
       // Counted once the first route has settled (a wide screen opens a set by itself, below).
       queueMicrotask(loadCensus);
       if (stopped) return;

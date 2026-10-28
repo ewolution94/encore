@@ -1,33 +1,34 @@
 <script lang="ts">
   import { formatTime } from '../../shared/tracklist.mjs';
   import { api, type SetSummary } from '../lib/api.ts';
+  import { t, tn } from '../lib/i18n/index.svelte.ts';
   import { tintStyle } from '../lib/tint.svelte.ts';
 
   let { sets, loaded, selected, onselect }: { sets: SetSummary[]; loaded: boolean; selected: string | null; onselect: (id: string) => void } = $props();
 
   const groups = $derived(
     [
-      { key: 'waiting', label: 'Waiting for you', sets: sets.filter((s) => s.status === 'waiting') },
-      { key: 'published', label: 'In Spotify', sets: sets.filter((s) => s.status === 'published').sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '')) },
-      { key: 'removed', label: 'Removed', sets: sets.filter((s) => s.status === 'removed') },
+      { key: 'waiting', label: t('list.waiting'), sets: sets.filter((s) => s.status === 'waiting') },
+      { key: 'published', label: t('list.published'), sets: sets.filter((s) => s.status === 'published').sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '')) },
+      { key: 'removed', label: t('list.removed'), sets: sets.filter((s) => s.status === 'removed') },
     ].filter((g) => g.sets.length),
   );
 
   function line(set: SetSummary) {
-    if (set.job) return set.job.phase === 'queued' ? 'Queued' : `Publishing ${Math.round(set.job.done * 100)}%`;
-    if (set.error) return 'Publishing failed';
-    if (set.missing) return 'Download gone';
-    if (set.status === 'published' && set.changed) return 'Changes not published';
-    return set.trackCount ? `${set.trackCount} tracks` : 'No tracklist yet';
+    if (set.job) return set.job.phase === 'queued' ? t('list.queued') : t('list.publishing', { percent: Math.round(set.job.done * 100) });
+    if (set.error) return t('list.failed');
+    if (set.missing) return t('list.gone');
+    if (set.status === 'published' && set.changed) return t('list.changed');
+    return set.trackCount ? tn('list.tracks', set.trackCount) : t('list.noTracks');
   }
 </script>
 
 {#if !loaded}
-  <p class="empty">Loading…</p>
+  <p class="empty">{t('list.loading')}</p>
 {:else if !sets.length}
   <div class="empty">
-    <p>No sets yet.</p>
-    <p class="sub">Save a set to the YouTube playlist; Pinchflat downloads it within half an hour.</p>
+    <p>{t('list.empty')}</p>
+    <p class="sub">{t('list.emptyHint')}</p>
   </div>
 {:else}
   {#each groups as group (group.key)}

@@ -1,0 +1,79 @@
+name: CI
+
+# Runs on pull requests, and is the gate docker-publish.yml calls before it publishes
+# anything, so the checks guarding a PR and the checks guarding a deploy can't drift apart.
+on:
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # Matches the Dockerfile.
+          node-version: 24
+          cache: npm
+
+      # The publish test cuts a real set with ffmpeg (tests/server.test.mjs), as the image does.
+      - name: Install ffmpeg
+        run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # The built page served by the real production server, against an empty staging folder.
+      - name: Smoke test the production server
+        run: |
+          mkdir -p /tmp/encore/staging /tmp/encore/library
+          # Without Access it refuses everything but /healthz.
+          PORT=7398 ENCORE_STAGING=/tmp/encore/staging ENCORE_LIBRARY=/tmp/encore/library ENCORE_DATA=/tmp/encore/data-closed node server/server.mjs &
+          closed=$!
+          for _ in $(seq 1 20); do curl -sf http://127.0.0.1:7398/healthz && break; sleep 0.5; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7398/)" = 503
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7398/api/sets)" = 503
+          kill $closed
+          PORT=7399 ENCORE_OPEN=1 ENCORE_STAGING=/tmp/encore/staging ENCORE_LIBRARY=/tmp/encore/library ENCORE_DATA=/tmp/encore/data node server/server.mjs &
+          server=$!
+          for _ in $(seq 1 20); do curl -sf http://127.0.0.1:7399/healthz && break; sleep 0.5; done
+          curl -sf http://127.0.0.1:7399/ | grep -q '<title>Encore</title>'
+          curl -sf http://127.0.0.1:7399/sets/AbCdEfGhIjK | grep -q '<title>Encore</title>'
+          curl -sI http://127.0.0.1:7399/ | grep -qi "content-security-policy: default-src 'self'"
+          curl -sI http://127.0.0.1:7399/ | grep -qi "cache-control: no-cache"
+          curl -sf http://127.0.0.1:7399/manifest.webmanifest | grep -q '"name": "Encore"'
+          curl -sf -o /dev/null http://127.0.0.1:7399/sw.js
+          curl -sf -o /dev/null http://127.0.0.1:7399/icons/apple-touch-icon.png
+          asset=$(curl -s http://127.0.0.1:7399/ | grep -o '/assets/[^"]*\.js' | head -1)
+          curl -sI "http://127.0.0.1:7399$asset" | grep -qi 'cache-control: public, max-age=31536000, immutable'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7399/assets/missing.js)" = 404
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:7399/)" = 405
+          # The API: an empty staging folder, an unknown set, a bad id.
+          curl -sf http://127.0.0.1:7399/api/sets | grep -qx '\[\]'
+          curl -sf -X POST http://127.0.0.1:7399/api/scan | grep -q '"found":0'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7399/api/sets/AbCdEfGhIjK)" = 404
+          test "$(curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:7399/api/sets/..%2F..%2Fetc')" = 404
+          # The Census forwarder is wired in; without ENCORE_CENSUS it answers locally.
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7399/_e.js)" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST --data '{}' http://127.0.0.1:7399/_e)" = 204
+          kill $server
+          wait $server || true

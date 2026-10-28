@@ -3,9 +3,13 @@
   import { RefreshCw } from '@lucide/svelte';
   import { toast } from '../vendor/ewo/elements/toaster.js';
   import { api, type SetSummary } from './lib/api.ts';
+  import { loadCensus } from './lib/census.ts';
+  import { t, tn } from './lib/i18n/index.svelte.ts';
+  import { ui } from './lib/prefs.svelte.ts';
   import { ensureTint, tintStyle } from './lib/tint.svelte.ts';
   import SetList from './components/SetList.svelte';
   import SetView from './components/SetView.svelte';
+  import Settings from './components/Settings.svelte';
 
   const idFromPath = () => /^\/sets\/([\w-]{11})$/.exec(location.pathname)?.[1] ?? null;
 
@@ -44,9 +48,9 @@
     try {
       const { found } = await api.scan();
       await refresh();
-      toast(found ? `${found} new ${found === 1 ? 'set' : 'sets'} found.` : 'Nothing new in staging.');
+      toast(found ? tn('app.found', found) : t('app.nothingNew'));
     } catch {
-      toast('Encore can’t be reached.', { tone: 'bad' });
+      toast(t('app.unreachable'), { tone: 'bad' });
     } finally {
       scanning = false;
     }
@@ -60,14 +64,25 @@
     // Faster while something is publishing, so its progress moves.
     const poll = async () => {
       await refresh();
+      // Counted once the first route has settled (a wide screen opens a set by itself, below).
+      queueMicrotask(loadCensus);
       if (stopped) return;
       timer = setTimeout(poll, sets.some((s) => s.job) ? 1000 : 5000);
     };
     void poll();
+    // `,` opens the settings, as in the other apps, unless the key is being typed into a field.
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (e.key !== ',' || e.metaKey || e.ctrlKey || e.altKey || target.closest('input, textarea, [contenteditable]')) return;
+      e.preventDefault();
+      ui.settings = true;
+    };
+    addEventListener('keydown', onKey);
     return () => {
       stopped = true;
       clearTimeout(timer);
       removeEventListener('popstate', onPop);
+      removeEventListener('keydown', onKey);
     };
   });
 
@@ -81,21 +96,24 @@
 
 <div class="app tinted" class:open={selected !== null} style={tintStyle(selected)}>
   <header class="bar">
-    <a class="brand" href="/" onclick={(e) => (e.preventDefault(), select(null))}>Encore<span class="dot">.</span></a>
+    <a class="brand" href="/" aria-label={t('app.home')} onclick={(e) => (e.preventDefault(), select(null))}>Encore<span class="dot">.</span></a>
     {#if loaded}
-      <span class="count mono">{waiting} waiting</span>
+      <span class="count mono">{t('app.waiting', { count: waiting })}</span>
     {/if}
     <span class="spacer"></span>
     {#if offline}
-      <span class="offline">Can’t reach Encore</span>
+      <span class="offline">{t('app.offline')}</span>
     {/if}
-    <button class="button quiet" onclick={scan} disabled={scanning} title="Look for new downloads now">
+    <button class="button quiet" onclick={scan} disabled={scanning} title={t('app.scanTitle')}>
       <RefreshCw size={15} class={scanning ? 'spin' : ''} />
-      <span class="scan-label">Check for new sets</span>
+      <span class="scan-label">{t('app.scan')}</span>
     </button>
+    <!-- Its own <button> inside takes the keys and names itself (after <html lang>); the click bubbles out. -->
+    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+    <ewo-settings-button onclick={() => (ui.settings = true)}></ewo-settings-button>
   </header>
 
-  <aside class="list-pane" aria-label="Sets">
+  <aside class="list-pane" aria-label={t('list.label')}>
     <SetList {sets} {loaded} {selected} onselect={select} />
   </aside>
 
@@ -105,10 +123,12 @@
         <SetView id={selected} {summary} onback={() => select(null)} onchange={refresh} />
       {/key}
     {:else if loaded && sets.length}
-      <p class="hint">Pick a set to check its tracks.</p>
+      <p class="hint">{t('app.pick')}</p>
     {/if}
   </main>
 </div>
+
+<Settings />
 
 <style>
   .app {

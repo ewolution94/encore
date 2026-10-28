@@ -1,6 +1,8 @@
 <script lang="ts">
   import { X } from '@lucide/svelte';
   import type { Issue, Track } from '../../shared/tracklist.mjs';
+  import { t } from '../lib/i18n/index.svelte.ts';
+  import { issueText } from '../lib/issues.ts';
   import TimeField from './TimeField.svelte';
 
   let {
@@ -22,10 +24,10 @@
 
 <ol class="rows">
   <li class="head" aria-hidden="true">
-    <span>#</span>
-    <span class="right">Starts</span>
-    <span>Artist</span>
-    <span>Title</span>
+    <span>{t('rows.n')}</span>
+    <span class="right">{t('rows.starts')}</span>
+    <span>{t('rows.artist')}</span>
+    <span>{t('rows.title')}</span>
     <span></span>
   </li>
   {#each tracks as track, i}
@@ -33,14 +35,14 @@
     <li class="row" id={`track-${i}`} class:bad={own.some((x) => x.level === 'error')}>
       <span class="n mono">{i + 1}</span>
       <span class="time">
-        <TimeField value={track.start} {long} label={`Start of track ${i + 1}`} invalid={own.some((x) => x.code === 'order' || x.code === 'end' || x.code === 'trim' || x.code === 'time')} onchange={(start) => onedit(i, { start })} />
+        <TimeField value={track.start} {long} label={t('rows.startOf', { n: i + 1 })} invalid={own.some((x) => ['order', 'same', 'end', 'trim', 'time'].includes(x.code))} onchange={(start) => onedit(i, { start })} />
       </span>
-      <input class="field artist" value={track.artist} placeholder={dj || 'Artist'} aria-label={`Artist of track ${i + 1}`} oninput={(e) => onedit(i, { artist: e.currentTarget.value })} />
-      <input class="field title" class:invalid={own.some((x) => x.code === 'title')} value={track.title} placeholder="Title" aria-label={`Title of track ${i + 1}`} oninput={(e) => onedit(i, { title: e.currentTarget.value })} />
-      <button class="icon-button remove" aria-label={`Remove track ${i + 1}`} title="Remove" onclick={() => onremove(i)}><X size={15} /></button>
+      <input class="field artist" value={track.artist} placeholder={dj || t('rows.artist')} aria-label={t('rows.artistOf', { n: i + 1 })} oninput={(e) => onedit(i, { artist: e.currentTarget.value })} />
+      <input class="field title" class:invalid={own.some((x) => x.code === 'title')} value={track.title} placeholder={t('rows.title')} aria-label={t('rows.titleOf', { n: i + 1 })} oninput={(e) => onedit(i, { title: e.currentTarget.value })} />
+      <button class="icon-button remove" aria-label={t('rows.remove', { n: i + 1 })} title={t('rows.removeShort')} onclick={() => onremove(i)}><X size={15} /></button>
       {#if own.length}
         <p class="issues">
-          {#each own as issue}<span class:warn={issue.level === 'warn'}>{issue.message}</span>{/each}
+          {#each own as issue}<span class:warn={issue.level === 'warn'}>{issueText(issue)}</span>{/each}
         </p>
       {/if}
     </li>

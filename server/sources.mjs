@@ -31,7 +31,7 @@ export function sourcesOf(info) {
     if (seen.has(sig)) continue;
     seen.add(sig);
     const author = String(comment.author ?? '').replace(/^@?/, '@');
-    sources.push({ key: `comment:${comment.id}`, kind: 'comment', label: `Comment by ${author}`, likes: comment.like_count ?? 0, tracks });
+    sources.push({ key: `comment:${comment.id}`, kind: 'comment', label: `Comment by ${author}`, author, likes: comment.like_count ?? 0, tracks });
     if (sources.filter((s) => s.kind === 'comment').length >= MAX_COMMENTS) break;
   }
 

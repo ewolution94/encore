@@ -105,7 +105,8 @@ export function checkTracks(tracks, { duration, trimIn = 0, trimOut = null }) {
     if (!String(track.title ?? '').trim()) issues.push({ index, level: 'error', code: 'title', message: 'Needs a title.' });
     const before = tracks[index - 1];
     if (before && Number.isFinite(before.start) && track.start <= before.start) {
-      issues.push({ index, level: 'error', code: 'order', message: track.start === before.start ? 'Starts at the same time as the track above.' : 'Starts before the track above.' });
+      const same = track.start === before.start;
+      issues.push({ index, level: 'error', code: same ? 'same' : 'order', message: same ? 'Starts at the same time as the track above.' : 'Starts before the track above.' });
     }
     if (track.start >= end) issues.push({ index, level: 'error', code: 'end', message: 'Starts after the set ends.' });
     else if (index > 0 && track.start <= trimIn) issues.push({ index, level: 'error', code: 'trim', message: 'Starts before the set does.' });

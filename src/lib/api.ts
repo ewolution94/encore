@@ -42,6 +42,7 @@ export interface Source {
   key: string;
   kind: 'description' | 'comment' | 'chapters';
   label: string;
+  author?: string;
   likes?: number;
   tracks: Track[];
 }

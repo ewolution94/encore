@@ -9,7 +9,7 @@ export interface Track {
 export interface Issue {
   index: number;
   level: 'error' | 'warn';
-  code: 'trim' | 'time' | 'title' | 'order' | 'end' | 'short';
+  code: 'trim' | 'time' | 'title' | 'order' | 'same' | 'end' | 'short';
   message: string;
 }
 

@@ -13,6 +13,7 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { createAccess } from './access.mjs';
 import { createApi } from './api.mjs';
+import { createCensus } from './census.mjs';
 import { createEncore } from './encore.mjs';
 import { createTelegram } from './telegram.mjs';
 
@@ -70,8 +71,12 @@ const encore = createEncore({
   telegram,
 });
 const api = createApi(encore);
+const census = createCensus({ target: env.ENCORE_CENSUS ?? '', site: 'encore' });
 const access = createAccess({ team: env.ENCORE_ACCESS_TEAM, aud: env.ENCORE_ACCESS_AUD });
-if (!access) console.warn('Cloudflare Access is not checked (ENCORE_ACCESS_TEAM / ENCORE_ACCESS_AUD unset).');
+// Encore publishes and deletes files in the synced folder: without Access it answers nothing but
+// /healthz, unless it's asked to run open (locally, CI's smoke test: ENCORE_OPEN=1).
+const open = env.ENCORE_OPEN === '1';
+if (!access) console.warn(open ? 'Cloudflare Access is not checked (ENCORE_OPEN=1).' : 'Cloudflare Access is not set up (ENCORE_ACCESS_TEAM, ENCORE_ACCESS_AUD): refusing every request but /healthz.');
 const compressed = new Map();
 
 async function resolveFile(pathname) {
@@ -133,10 +138,17 @@ const server = http.createServer(async (req, res) => {
 
   try {
     const { pathname } = new URL(req.url, 'http://localhost');
-    if (access && !PUBLIC.test(pathname) && !(await access.check(req))) {
-      res.writeHead(403, { 'content-type': 'text/plain' }).end('Sign in through encore.ewolution.cloud.');
-      return;
+    if (!PUBLIC.test(pathname)) {
+      if (!access && !open) {
+        res.writeHead(503, { 'content-type': 'text/plain' }).end('Encore is not protected yet: set ENCORE_ACCESS_TEAM and ENCORE_ACCESS_AUD.');
+        return;
+      }
+      if (access && !(await access.check(req))) {
+        res.writeHead(403, { 'content-type': 'text/plain' }).end('Sign in through encore.ewolution.cloud.');
+        return;
+      }
     }
+    if (await census(req, res)) return;
     if (await api(req, res)) return;
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405).end();

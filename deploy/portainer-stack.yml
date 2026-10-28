@@ -1,0 +1,84 @@
+# The Encore stack Portainer runs on the NAS: Encore, and Pinchflat beside it (plans/encore.md in the
+# workspace).
+#
+# This is deliberately NOT the repo's docker-compose.yml. That one carries `build: .`,
+# which would make Portainer compile the app on the NAS instead of pulling the image
+# CI already published.
+#
+# Auto-updates come from the shared Watchtower stack, which only touches containers carrying its
+# label: Encore has it, so a push to `release` is the entire deploy. Pinchflat is pinned and doesn't.
+
+services:
+  encore:
+    image: ghcr.io/ewolution94/encore:latest
+    container_name: encore
+    restart: unless-stopped
+    # Encore writes the tracks into a DSM shared folder, which belongs to DSM's users, not to the
+    # image's `node` user; as root its files land like any other there and Drive syncs them.
+    user: "0:0"
+    healthcheck:
+      # Every ~13½ minutes, each container on its own interval so they never line up (plans/nas-load.md).
+      interval: 817s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ports:
+      # The port from the registry (development/.claude/skills/portainer/ports.json).
+      - "7300:7300"
+    environment:
+      - PORT=7300
+      - TZ=Europe/Berlin
+      - ENCORE_PUBLIC_URL=https://encore.ewolution.cloud
+      # Cloudflare Access, checked by Encore too; the AUD tag is a stack variable. Without both,
+      # Encore answers nothing but /healthz.
+      - ENCORE_ACCESS_TEAM=ewolution.cloudflareaccess.com
+      - ENCORE_ACCESS_AUD=${ENCORE_ACCESS_AUD:-}
+      # "Ready to check" on Telegram (the bot that sends Census's deploy messages); stack variables.
+      - ENCORE_TG_BOT_TOKEN=${ENCORE_TG_BOT_TOKEN:-}
+      - ENCORE_TG_CHAT_ID=${ENCORE_TG_CHAT_ID:-}
+      # Visit counts: /_e and /_e.js are forwarded to Census over the `ewolution` network.
+      - ENCORE_CENSUS=http://census:4901
+    volumes:
+      - encore-data:/data
+      # Pinchflat's downloads, read only.
+      - staging:/staging:ro
+      # The synced folder: Synology Drive takes it to the PC, Spotify reads it there.
+      - /volume1/music/Encore:/library
+    networks:
+      - ewolution
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  pinchflat:
+    # Pinned: a third-party image, no Watchtower label. It updates its own yt-dlp at boot and on a
+    # schedule, so the pin doesn't freeze the downloader. Pinned by digest: release v2025.9.26 (the
+    # first with Deno) was never published under its own tag; this is `latest` as built 2025-09-27
+    # from 0688e88, the release plus yt-dlp for arm64.
+    image: ghcr.io/kieraneglin/pinchflat@sha256:01b4f98aabaf3f5fe394213f7a32578c9e84e42080f52e2f8334021a4473b202
+    container_name: encore-pinchflat
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      # The image's own check (curl /healthcheck), every ~13 minutes instead of its 30 s, on its own
+      # interval (plans/nas-load.md).
+      interval: 810s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # No port: its page stays inside Docker (the user, 2026-10-28). For a change there, publish
+    # 8945 for a while, with the user's yes.
+    volumes:
+      - pinchflat-config:/config
+      # Staging: downloads land here and never sync anywhere; Encore reads them.
+      - staging:/downloads
+
+volumes:
+  encore-data:
+  pinchflat-config:
+  staging:
+
+networks:
+  # The shared network Census listens on; it exists already.
+  ewolution:
+    external: true

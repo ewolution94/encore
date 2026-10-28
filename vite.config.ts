@@ -3,6 +3,8 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 // @ts-expect-error: plain .mjs modules shared with the production server
 import { createApi } from './server/api.mjs';
 // @ts-expect-error: as above
+import { createCensus } from './server/census.mjs';
+// @ts-expect-error: as above
 import { createEncore } from './server/encore.mjs';
 
 // The dev server answers /api with the same code as production, against the fixtures in .dev
@@ -10,6 +12,7 @@ import { createEncore } from './server/encore.mjs';
 // synced share, and Encore's own database. Telegram and Access stay off.
 function appRoutes(): Plugin {
   let api: ((req: any, res: any) => Promise<boolean>) | undefined;
+  const census = createCensus({ site: 'encore' });
   const ready = () => {
     if (api) return api;
     const encore = createEncore({
@@ -25,6 +28,7 @@ function appRoutes(): Plugin {
   };
   const middleware = async (req: any, res: any, next: (error?: unknown) => void) => {
     try {
+      if (await census(req, res)) return;
       if (await ready()(req, res)) return;
       next();
     } catch (error) {

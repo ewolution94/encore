@@ -4,6 +4,8 @@
   import { toast } from '../../vendor/ewo/elements/toaster.js';
   import { checkTracks, formatTime, parseTracklist, type Issue, type Track } from '../../shared/tracklist.mjs';
   import { api, ApiError, type Draft, type SetDetail, type SetSummary, type Source } from '../lib/api.ts';
+  import { locale, t, tn } from '../lib/i18n/index.svelte.ts';
+  import { issueText } from '../lib/issues.ts';
   import SetStrip from './SetStrip.svelte';
   import TimeField from './TimeField.svelte';
   import TrackRows from './TrackRows.svelte';
@@ -70,7 +72,7 @@
       })
       .catch(() => {
         unsaved = true;
-        toast('Your changes weren’t saved. Encore can’t be reached.', { tone: 'bad' });
+        toast(t('set.notSaved'), { tone: 'bad' });
       })
       .finally(() => {
         saving = null;
@@ -100,7 +102,7 @@
     if (!draft || !draft.tracks.length) return true;
     const from = detail?.sources.find((s) => s.key === draft!.source);
     if (from && sameTracks(from.tracks, $state.snapshot(draft.tracks) as Track[])) return true;
-    return confirm('Replace the tracklist? Your changes to it will be lost.');
+    return confirm(t('set.replace'));
   }
 
   function useSource(source: Source) {
@@ -115,7 +117,7 @@
     if (!draft) return;
     const tracks = parseTracklist(pasteText);
     if (!tracks.length) {
-      pasteError = 'No lines with a time in them. Each track needs one, like “12:34 Artist - Title”.';
+      pasteError = t('set.pasteNone');
       return;
     }
     if (!mayReplace()) return;
@@ -159,54 +161,64 @@
       await api.publish(id);
       onchange();
     } catch (error) {
-      if (error instanceof ApiError && error.status === 422) toast('Fix the marked tracks first.', { tone: 'bad' });
-      else toast(error instanceof ApiError ? error.message : 'Encore can’t be reached.', { tone: 'bad' });
+      if (error instanceof ApiError && error.status === 422) toast(t('set.fixFirst'), { tone: 'bad' });
+      else toast(apiError(error), { tone: 'bad' });
     }
   }
 
   async function remove() {
     if (!detail) return;
     const n = detail.files.length;
-    if (!confirm(`Take ${n === 1 ? 'this set’s file' : `the ${n} tracks`} out of Spotify? The download and your tracklist stay here.`)) return;
+    if (!confirm(tn('set.removeConfirm', n))) return;
     try {
       await api.remove(id);
       onchange();
       await load();
-      toast('Removed. Drive takes it off the PC, and Spotify follows.');
+      toast(t('set.removed'));
     } catch (error) {
-      toast(error instanceof ApiError ? error.message : 'Encore can’t be reached.', { tone: 'bad' });
+      toast(apiError(error), { tone: 'bad' });
     }
   }
 
+  /** What the server refused, in the page's language; its own words only for what has no key. */
+  function apiError(error: unknown) {
+    if (!(error instanceof ApiError)) return t('app.unreachable');
+    if (error.body.error === 'missing') return t('error.missing');
+    if (error.body.error === 'busy') return t('error.busy');
+    return error.message;
+  }
+
   const publishLabel = $derived(
-    detail?.status === 'published' ? (summary?.changed ? 'Publish changes' : 'Published') : detail?.status === 'removed' ? 'Publish again' : 'Publish to Spotify',
+    detail?.status === 'published' ? (summary?.changed ? t('set.publishChanges') : t('set.published')) : detail?.status === 'removed' ? t('set.publishAgain') : t('set.publish'),
   );
-  const phaseLabel = { queued: 'Waiting for the one before', encoding: 'Encoding', cutting: 'Cutting into tracks', copying: 'Copying to the library' };
-  const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+  const sourceLabel = (source: Source) =>
+    source.kind === 'comment' ? t('source.comment', { author: source.author ?? '' }) : source.kind === 'chapters' ? t('source.chapters') : t('source.description');
+  const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
 </script>
 
 <div class="view">
   {#if failed}
-    <p class="note">This set can’t be loaded. <button class="button" onclick={load}>Try again</button></p>
+    <p class="note">{t('set.loadFailed')} <button class="button" onclick={load}>{t('set.retry')}</button></p>
   {:else if detail && draft}
     <div class="scroll">
       <div class="band" aria-hidden="true"></div>
       <header class="head">
-        <button class="icon-button back" onclick={onback} aria-label="Back to the list"><ArrowLeft size={18} /></button>
+        <button class="icon-button back" onclick={onback} aria-label={t('set.back')}><ArrowLeft size={18} /></button>
         <span class="cover"><img src={api.thumb(id)} alt="" width="126" height="126" /></span>
         <div class="about">
           <h1>{detail.title}</h1>
           <p class="meta">
             {detail.channel} · <span class="mono">{formatTime(detail.duration)}</span> ·
-            <a href={detail.url} target="_blank" rel="noreferrer">YouTube <ExternalLink size={12} /></a>
+            <a href={detail.url} target="_blank" rel="noreferrer">{t('set.youtube')} <ExternalLink size={12} /></a>
           </p>
           <p class="state">
             {#if detail.status === 'published'}
-              In Spotify since {when(detail.publishedAt)}, {detail.files.length} {detail.files.length === 1 ? 'file' : 'tracks'}{summary?.changed ? '. Your changes aren’t published yet.' : '.'}
+              {t('set.state.published', { date: when(detail.publishedAt) })}
+              {#if summary?.changed}{t('set.state.changed')}{/if}
             {:else if detail.status === 'removed'}
-              Taken out of Spotify. Publish it again any time.
+              {t('set.state.removed')}
             {:else}
-              Waiting for you. Nothing reaches Spotify before you publish it.
+              {t('set.state.waiting')}
             {/if}
           </p>
         </div>
@@ -215,91 +227,91 @@
       <SetStrip tracks={draft.tracks} duration={detail.duration} trimIn={draft.trimIn} trimOut={draft.trimOut} issues={byIndex} onpick={pick} />
 
       {#if detail.missing}
-        <p class="banner bad">The download is gone from staging, so this set can’t be published. Pinchflat’s page can download it again.</p>
+        <p class="banner bad">{t('set.missing')}</p>
       {/if}
       {#if detail.error && !job}
-        <p class="banner bad">Publishing failed: {detail.error}</p>
+        <p class="banner bad">{t('set.failed', { error: detail.error })}</p>
       {/if}
 
       <section class="names">
         <label>
-          <span class="label">Album</span>
+          <span class="label">{t('set.album')}</span>
           <input class="field" bind:value={draft.album} oninput={edited} />
         </label>
         <label>
-          <span class="label">DJ</span>
+          <span class="label">{t('set.dj')}</span>
           <input class="field" bind:value={draft.albumArtist} oninput={edited} />
         </label>
-        <p class="hint">The album keeps the set together in Spotify; the DJ stands in for tracks without an artist.</p>
+        <p class="hint">{t('set.namesHint')}</p>
       </section>
 
       <section class="sources">
-        <h2 class="label">Tracklist from</h2>
-        <div class="chips" role="group" aria-label="Tracklist from">
+        <h2 class="label">{t('set.source')}</h2>
+        <div class="chips" role="group" aria-label={t('set.source')}>
           {#each detail.sources as source (source.key)}
             <button class="chip" class:on={draft.source === source.key} aria-pressed={draft.source === source.key} onclick={() => useSource(source)}>
-              {source.label}
+              {sourceLabel(source)}
               <span class="mono count">{source.tracks.length}</span>
               {#if source.likes}<span class="likes">♥ {source.likes}</span>{/if}
             </button>
           {/each}
-          <button class="chip" class:on={draft.source === 'pasted' || pasteOpen} aria-expanded={pasteOpen} onclick={() => (pasteOpen = !pasteOpen)}>Paste a list</button>
+          <button class="chip" class:on={draft.source === 'pasted' || pasteOpen} aria-expanded={pasteOpen} onclick={() => (pasteOpen = !pasteOpen)}>{t('source.paste')}</button>
         </div>
         {#if !detail.sources.length}
-          <p class="hint">Neither the description nor the top comments have a list with times. Paste one from 1001Tracklists or elsewhere, or add the tracks below.</p>
+          <p class="hint">{t('set.noSources')}</p>
         {:else if sourceKind === 'chapters'}
-          <p class="hint">YouTube writes these chapters itself. They’re rarely songs.</p>
+          <p class="hint">{t('set.chaptersHint')}</p>
         {/if}
         {#if pasteOpen}
           <div class="paste">
-            <textarea class="field mono" rows="7" bind:value={pasteText} placeholder={'0:00 Artist - Title\n3:12 Artist - Title\n…'} aria-label="Tracklist to paste"></textarea>
+            <textarea class="field mono" rows="7" bind:value={pasteText} placeholder={t('set.pastePlaceholder')} aria-label={t('set.pasteLabel')}></textarea>
             <div class="paste-row">
               {#if pasteError}<p class="error">{pasteError}</p>{/if}
-              <button class="button" onclick={usePaste} disabled={!pasteText.trim()}>Use this list</button>
+              <button class="button" onclick={usePaste} disabled={!pasteText.trim()}>{t('set.pasteUse')}</button>
             </div>
           </div>
         {/if}
       </section>
 
       <section class="trim">
-        <h2 class="label">The set runs</h2>
+        <h2 class="label">{t('set.runs')}</h2>
         <div class="trim-row">
-          <span>from</span>
-          <span class="trim-field"><TimeField value={draft.trimIn} {long} label="Set starts at" onchange={(v) => ((draft!.trimIn = v ?? 0), edited())} /></span>
-          <span>to</span>
-          <span class="trim-field"><TimeField value={draft.trimOut ?? detail.duration} {long} label="Set ends at" invalid={setIssues.length > 0} onchange={(v) => ((draft!.trimOut = v === null || v >= detail!.duration ? null : v), edited())} /></span>
+          <span>{t('set.from')}</span>
+          <span class="trim-field"><TimeField value={draft.trimIn} {long} label={t('set.startsAt')} onchange={(v) => ((draft!.trimIn = v ?? 0), edited())} /></span>
+          <span>{t('set.to')}</span>
+          <span class="trim-field"><TimeField value={draft.trimOut ?? detail.duration} {long} label={t('set.endsAt')} invalid={setIssues.length > 0} onchange={(v) => ((draft!.trimOut = v === null || v >= detail!.duration ? null : v), edited())} /></span>
           {#if draft.trimIn > 0 || draft.trimOut !== null}
-            <button class="button quiet" onclick={() => ((draft!.trimIn = 0), (draft!.trimOut = null), edited())}>Whole video</button>
+            <button class="button quiet" onclick={() => ((draft!.trimIn = 0), (draft!.trimOut = null), edited())}>{t('set.whole')}</button>
           {/if}
         </div>
-        {#each setIssues as issue}<p class="error">{issue.message}</p>{/each}
+        {#each setIssues as issue}<p class="error">{issueText(issue)}</p>{/each}
       </section>
 
       <section class="tracks">
-        <h2 class="label">Tracks <span class="mono count">{draft.tracks.length}</span></h2>
+        <h2 class="label">{t('set.tracks')} <span class="mono count">{draft.tracks.length}</span></h2>
         {#if draft.tracks.length}
           <TrackRows tracks={draft.tracks} {long} dj={draft.albumArtist} issues={byIndex} onedit={editTrack} onremove={removeTrack} />
         {:else}
-          <p class="hint">No tracks: the set goes to Spotify as one long track.</p>
+          <p class="hint">{t('set.noTracks')}</p>
         {/if}
-        <button class="button quiet add" onclick={addTrack}><Plus size={15} /> Add a track</button>
+        <button class="button quiet add" onclick={addTrack}><Plus size={15} /> {t('set.add')}</button>
       </section>
     </div>
 
     <footer class="actions">
       {#if job}
         <div class="progress" role="status">
-          <span>{phaseLabel[job.phase]}{job.phase === 'queued' ? '' : ` ${Math.round(job.done * 100)}%`}</span>
+          <span>{t(`phase.${job.phase}`)}{job.phase === 'queued' ? '' : ` ${Math.round(job.done * 100)}%`}</span>
           <span class="track"><span class="fill" style:transform={`scaleX(${job.phase === 'queued' ? 0 : job.done})`}></span></span>
         </div>
       {:else}
         <p class="sum">
-          <span class="mono">{draft.tracks.length || 1}</span> {draft.tracks.length === 1 || !draft.tracks.length ? 'track' : 'tracks'} ·
-          <span class="mono">{formatTime(end - draft.trimIn)}</span> · about {megabytes} MB
-          {#if errors.length}<span class="to-fix">· {errors.length} to fix</span>{/if}
+          {tn('set.tracksCount', draft.tracks.length || 1)} ·
+          <span class="mono">{formatTime(end - draft.trimIn)}</span> · {t('set.size', { mb: megabytes })}
+          {#if errors.length}<span class="to-fix">· {t('set.toFix', { count: errors.length })}</span>{/if}
         </p>
         {#if detail.status === 'published'}
-          <button class="button quiet danger" onclick={remove}>Remove from Spotify</button>
+          <button class="button quiet danger" onclick={remove}>{t('set.remove')}</button>
         {/if}
         <button class="button primary" onclick={publish} disabled={errors.length > 0 || detail.missing || (detail.status === 'published' && !summary?.changed)}>{publishLabel}</button>
       {/if}

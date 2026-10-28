@@ -1,0 +1,19 @@
+# For trying the image locally (it builds from source) against the dev fixtures in .dev
+# (`npm run fixtures`). The NAS runs deploy/portainer-stack.yml.
+services:
+  encore:
+    build: .
+    image: ghcr.io/ewolution94/encore:latest
+    container_name: encore
+    ports:
+      - "8080:8080"
+    environment:
+      # Locally there's no Cloudflare Access in front.
+      - ENCORE_OPEN=1
+    volumes:
+      - ./.dev/staging:/staging:ro
+      - ./.dev/library-docker:/library
+      - encore-data:/data
+
+volumes:
+  encore-data:

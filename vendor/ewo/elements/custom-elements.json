@@ -1,0 +1,4016 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "badge.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A status pill: a dot that can pulse, a tone, a label.",
+          "name": "EwoBadge",
+          "cssParts": [
+            {
+              "name": "dot"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The label.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "`<span class=\"dot\" part=\"dot\"></span><slot></slot>`"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "live",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Announce changes politely (role=status)."
+            },
+            {
+              "type": {
+                "text": "'neutral' | 'ok' | 'warn' | 'bad' | 'info' | 'unknown' | 'accent'"
+              },
+              "name": "tone"
+            },
+            {
+              "type": {
+                "text": "'outline' | 'soft' | 'plain'"
+              },
+              "name": "variant"
+            },
+            {
+              "type": {
+                "text": "'md' | 'sm'"
+              },
+              "name": "size"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "A ring breathes out of the dot (off under reduced motion).",
+              "name": "pulse"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Text only.",
+              "name": "nodot"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-badge",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoBadge",
+          "declaration": {
+            "name": "EwoBadge",
+            "module": "badge.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "connection.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The connection, in a word, when it's worth one.",
+          "name": "EwoConnection",
+          "cssProperties": [
+            {
+              "description": "Where the pill sits (default: 12 px below the safe area).",
+              "name": "--ewo-connection-top"
+            },
+            {
+              "description": "The pill's background (default --ewo-fg).",
+              "name": "--ewo-connection-bg"
+            },
+            {
+              "description": "Its text (default --ewo-bg).",
+              "name": "--ewo-connection-fg"
+            },
+            {
+              "description": "Its font family.",
+              "name": "--ewo-connection-font"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "pill"
+            }
+          ],
+          "slots": [
+            {
+              "description": "A game's working mark (three dots by default).",
+              "name": "mark"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#timer",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#text",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.text')!"
+            },
+            {
+              "kind": "field",
+              "name": "#stop",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "state",
+              "type": {
+                "text": "ConnectionState"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#update",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#show",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "what",
+                  "type": {
+                    "text": "'connecting' | 'reconnecting' | 'back'"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#hide",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#words",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "state",
+              "type": {
+                "text": "'connecting' | 'reconnecting' | 'online'"
+              },
+              "description": "What the connection is doing (default online)."
+            },
+            {
+              "name": "connecting-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Connecting …\"."
+            },
+            {
+              "name": "reconnecting-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Reconnecting …\"."
+            },
+            {
+              "name": "back-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Connected again\"."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-connection",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoConnection",
+          "declaration": {
+            "name": "EwoConnection",
+            "module": "connection.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "emblem-maker.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Choose an emblem: arrows per part around the big emblem, and a dice.",
+          "name": "EwoEmblemMaker",
+          "cssProperties": [
+            {
+              "description": "The big emblem's stage (default 200px).",
+              "name": "--ewo-emblem-maker-size"
+            },
+            {
+              "description": "The emblem's margin inside the stage (default 8%; Kritzle's 6%).",
+              "name": "--ewo-emblem-maker-inset"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "Each arrow button; the left ones are also `prev`, the right ones `next`.",
+              "name": "arrow"
+            },
+            {
+              "description": "The left column's arrows.",
+              "name": "prev"
+            },
+            {
+              "description": "The right column's arrows.",
+              "name": "next"
+            },
+            {
+              "description": "The square the emblem sits on.",
+              "name": "stage"
+            },
+            {
+              "description": "The strip naming the new choice.",
+              "name": "tag"
+            },
+            {
+              "description": "The part names under the stage.",
+              "name": "legend"
+            },
+            {
+              "description": "The roll button.",
+              "name": "dice"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#stop",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#timer",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number[]"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#emblem",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#step",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "part",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "delta",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#roll",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#press",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "button",
+                  "type": {
+                    "text": "HTMLButtonElement"
+                  }
+                }
+              ],
+              "description": "A pressed look from pointerdown until pointerup, shown for at least 120ms so a quick tap is seen."
+            },
+            {
+              "kind": "method",
+              "name": "#bump",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "delta",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "The emblem answers a step: a small nudge towards the arrow, and back."
+            },
+            {
+              "kind": "method",
+              "name": "#set",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "number[]"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#announce",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { value: number[] }` after a step or a roll.",
+              "name": "change"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "theme",
+              "type": {
+                "text": "'heraldry' | 'doodle' | 'token' | 'tag' | 'agent'"
+              },
+              "description": "Which generator (default heraldry)."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "The numbers, comma-separated; the `value` property also takes an array. Random when missing."
+            },
+            {
+              "name": "initial",
+              "type": {
+                "text": "string"
+              },
+              "description": "Tag: the player's name, for the initial figure."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-emblem-maker",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoEmblemMaker",
+          "declaration": {
+            "name": "EwoEmblemMaker",
+            "module": "emblem-maker.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "emblem.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A player's emblem: Vollmond's shield, Kritzle's doodled face, or a coin, from a few numbers.",
+          "name": "EwoEmblem",
+          "cssProperties": [
+            {
+              "description": "Heraldry's dark ink.",
+              "name": "--ewo-emblem-1"
+            },
+            {
+              "description": "Heraldry's bright ink.",
+              "name": "--ewo-emblem-2"
+            },
+            {
+              "description": "Heraldry's paper, and the charge.",
+              "name": "--ewo-emblem-3"
+            },
+            {
+              "description": "The shield's rim, the doodle's ring.",
+              "name": "--ewo-emblem-ink"
+            },
+            {
+              "description": "The line through a dead emblem.",
+              "name": "--ewo-emblem-strike"
+            },
+            {
+              "description": "What a doodle face sits on; the tag's hole.",
+              "name": "--ewo-emblem-paper"
+            },
+            {
+              "description": "The tag's outline (default a dark ink, on any page).",
+              "name": "--ewo-emblem-tag-ink"
+            },
+            {
+              "description": "The tag's first colour (mint); -1 … -13 the others, in TAG_COLOURS' order.",
+              "name": "--ewo-emblem-tag-0"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#drawn",
+              "privacy": "private",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "What's drawn now, one SVG per frame: a render that would draw the same does nothing."
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dead",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "boil",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "ring",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "crown",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#size",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#label",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "theme",
+              "type": {
+                "text": "'heraldry' | 'doodle' | 'token' | 'tag' | 'agent'"
+              },
+              "description": "Which generator draws it (default heraldry)."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "The numbers, one per part, comma-separated (\"3,7\"). The `value` property also takes an array."
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "string"
+              },
+              "description": "A number of pixels or any CSS length (default 48px)."
+            },
+            {
+              "name": "mood",
+              "type": {
+                "text": "'' | 'happy'"
+              },
+              "description": "Doodle: laughing eyes and mouth; agent: closed eyes and a smile."
+            },
+            {
+              "name": "crown",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Doodle: the winner's crown."
+            },
+            {
+              "name": "boil",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Doodle: redraws itself three ways in turn (still under reduced motion)."
+            },
+            {
+              "name": "dead",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Heraldry and token: greyed and struck through."
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name; without it the emblem is decoration."
+            },
+            {
+              "name": "initial",
+              "type": {
+                "text": "string"
+              },
+              "description": "Tag: the player's name; its first letter is figure 0."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Doodle, agent: an ink ring around the face.",
+              "name": "ring"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-emblem",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoEmblem",
+          "declaration": {
+            "name": "EwoEmblem",
+            "module": "emblem.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "empty.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The \"nothing here yet\" panel, or a centred error card.",
+          "name": "EwoEmpty",
+          "cssParts": [
+            {
+              "name": "mark"
+            },
+            {
+              "name": "heading"
+            },
+            {
+              "name": "body"
+            },
+            {
+              "name": "actions"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The body text.",
+              "name": ""
+            },
+            {
+              "description": "An icon or a project mark.",
+              "name": "mark"
+            },
+            {
+              "description": "Buttons or links.",
+              "name": "actions"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#heading",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLHeadingElement"
+              },
+              "default": "this.root.querySelector('h2')!"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <div class=\"mark\" part=\"mark\"><slot name=\"mark\"></slot></div> <h2 part=\"heading\"></h2> <div class=\"body\" part=\"body\"><slot></slot></div> <div class=\"actions\" part=\"actions\"><slot name=\"actions\"></slot></div>`"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "heading",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "type": {
+                "text": "'dashed' | 'solid'"
+              },
+              "name": "variant"
+            },
+            {
+              "type": {
+                "text": "'neutral' | 'bad' | 'accent'"
+              },
+              "description": "Colour of the mark.",
+              "name": "tone"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Harbor's orbit rings behind the mark.",
+              "name": "rings"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "name": "compact"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-empty",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoEmpty",
+          "declaration": {
+            "name": "EwoEmpty",
+            "module": "empty.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "guide.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A how-to in full-screen pages: swipe, the dots, Back and Next; Done on the last.",
+          "name": "EwoGuide",
+          "cssProperties": [
+            {
+              "name": "--ewo-guide-bg"
+            },
+            {
+              "name": "--ewo-guide-fg"
+            },
+            {
+              "name": "--ewo-guide-fg-2"
+            },
+            {
+              "name": "--ewo-guide-accent"
+            },
+            {
+              "name": "--ewo-guide-accent-ink"
+            },
+            {
+              "name": "--ewo-guide-dot"
+            },
+            {
+              "name": "--ewo-guide-dot-on"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "dialog"
+            },
+            {
+              "name": "track"
+            },
+            {
+              "name": "footer"
+            },
+            {
+              "name": "skip"
+            },
+            {
+              "name": "back"
+            },
+            {
+              "name": "next"
+            },
+            {
+              "name": "dots"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The pages: one child each (an aria-label or its first heading names it).",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#dialog",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLDialogElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#track",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#slot",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLSlotElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#dots",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#back",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLButtonElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#next",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLButtonElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#skip",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLButtonElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#live",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#index",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#frame",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#heading",
+              "privacy": "private",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The page a goTo() scroll is on its way to; the pages it passes on the way don't count."
+            },
+            {
+              "kind": "field",
+              "name": "#headingTimer",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#closing",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#unlock",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#opener",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#unlang",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "open"
+            },
+            {
+              "kind": "field",
+              "name": "page",
+              "description": "The page shown, from 0.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "show"
+            },
+            {
+              "kind": "method",
+              "name": "close"
+            },
+            {
+              "kind": "method",
+              "name": "goTo",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Turns to a page (clamped); at once, with a fade, under reduced motion."
+            },
+            {
+              "kind": "method",
+              "name": "#arrived",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#pages",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#words",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#title",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "text": "Element | undefined"
+                  }
+                }
+              ],
+              "description": "The page's name: its aria-label, else its first heading."
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#show",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "i",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#state",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "say",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "The buttons and dots for the page shown; `say` announces it."
+            },
+            {
+              "kind": "method",
+              "name": "#requestClose",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#finish",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#release",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <dialog part=\"dialog\" tabindex=\"-1\" autofocus aria-roledescription=\"guide\"> <div class=\"top\"><button class=\"skip\" part=\"skip\" type=\"button\"></button></div> <div class=\"track\" part=\"track\"><slot></slot></div> <p class=\"live\" aria-live=\"polite\"></p> <footer part=\"footer\"> <button class=\"back\" part=\"back\" type=\"button\"></button> <div class=\"dots\" part=\"dots\" role=\"group\"></div> <button class=\"next\" part=\"next\" type=\"button\"></button> </footer> </dialog>`"
+            }
+          ],
+          "events": [
+            {
+              "description": "Cancelable: Escape, Skip or the backdrop asked to close.",
+              "name": "cancel"
+            },
+            {
+              "description": "The last page's button was pressed.",
+              "name": "done"
+            },
+            {
+              "description": "The page shown changed; `detail.index`.",
+              "name": "page"
+            },
+            {
+              "description": "After it has closed.",
+              "name": "close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the guide."
+            },
+            {
+              "name": "next-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Instead of \"Next\"."
+            },
+            {
+              "name": "back-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Instead of \"Back\"."
+            },
+            {
+              "name": "done-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "The last page's button, instead of \"Done\"."
+            },
+            {
+              "name": "skip-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Instead of \"Skip\"."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-guide",
+          "customElement": true
+        },
+        {
+          "kind": "function",
+          "name": "firstVisit",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "parameters": [
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "True on a device's first visit (and remembers it); false after, or when storage is unavailable."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoGuide",
+          "declaration": {
+            "name": "EwoGuide",
+            "module": "guide.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "firstVisit",
+          "declaration": {
+            "name": "firstVisit",
+            "module": "guide.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "halftone.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An image redrawn as halftone dots in the page's ink.",
+          "name": "EwoHalftone",
+          "cssProperties": [
+            {
+              "description": "Aspect ratio of the box.",
+              "name": "--ewo-halftone-ratio",
+              "default": "4 / 3"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#canvas",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#ctx",
+              "privacy": "private",
+              "default": "this.#canvas.getContext('2d')!"
+            },
+            {
+              "kind": "field",
+              "name": "#image",
+              "privacy": "private",
+              "type": {
+                "text": "ImageBitmap | HTMLImageElement | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#grid",
+              "privacy": "private",
+              "type": {
+                "text": "Grid | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#ink",
+              "privacy": "private",
+              "type": {
+                "text": "[number, number, number]"
+              },
+              "default": "[242, 241, 238]"
+            },
+            {
+              "kind": "field",
+              "name": "#light",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#w",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#h",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#lensAt",
+              "privacy": "private",
+              "type": {
+                "text": "{ x: number; y: number } | null"
+              },
+              "default": "null",
+              "description": "Where the lens is, kept after the pointer leaves so it can ease out there."
+            },
+            {
+              "kind": "field",
+              "name": "#inside",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#lensAmount",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#rippleStart",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#frame",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#resize",
+              "privacy": "private",
+              "default": "new ResizeObserver(() => this.#layout())"
+            },
+            {
+              "kind": "field",
+              "name": "#offTheme",
+              "privacy": "private",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "method",
+              "name": "replay",
+              "description": "Replays the entrance ripple."
+            },
+            {
+              "kind": "method",
+              "name": "#loadImage",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#readTheme",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#layout",
+              "privacy": "private",
+              "description": "Samples the image onto a grid of cells sized to the element."
+            },
+            {
+              "kind": "method",
+              "name": "#onPointer",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#tick",
+              "privacy": "private",
+              "description": "Runs frames only while the ripple plays or the lens eases in or out."
+            },
+            {
+              "kind": "method",
+              "name": "#draw",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "role",
+              "type": {
+                "text": "string"
+              },
+              "default": "'img'"
+            }
+          ],
+          "events": [
+            {
+              "name": "load"
+            },
+            {
+              "name": "error"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "cell",
+              "type": {
+                "text": "number"
+              },
+              "description": "Dot pitch in CSS px (default 4.6, the portrait's)."
+            },
+            {
+              "name": "color",
+              "type": {
+                "text": "'ink' | 'photo'"
+              },
+              "description": "`photo` keeps some of the image's colour."
+            },
+            {
+              "name": "alt",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "fit",
+              "type": {
+                "text": "'cover' | 'contain'"
+              }
+            },
+            {
+              "name": "origin",
+              "type": {
+                "text": "string"
+              },
+              "description": "Ripple origin as \"u v\" fractions (default \"0.5 0.4\")."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Dots swell and part under the pointer.",
+              "name": "lens"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Entrance ripple from `origin`.",
+              "name": "ripple"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-halftone",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoHalftone",
+          "declaration": {
+            "name": "EwoHalftone",
+            "module": "halftone.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "segmented.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A pill radio group with one sliding indicator.",
+          "name": "EwoSegmented",
+          "cssParts": [
+            {
+              "description": "The pill.",
+              "name": "track"
+            },
+            {
+              "description": "The sliding highlight.",
+              "name": "indicator"
+            },
+            {
+              "description": "Each choice; the chosen one also has `selected`.",
+              "name": "option"
+            }
+          ],
+          "slots": [
+            {
+              "description": "`<option value>` elements, one per choice.",
+              "name": ""
+            },
+            {
+              "description": "An icon for that option (any element, e.g. an inline SVG), shown before its label.",
+              "name": "icon-<value>"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#options",
+              "privacy": "private",
+              "type": {
+                "text": "SegmentedOption[] | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#track",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "default": "new MutationObserver(() => this.#render())"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "SegmentedOption[]"
+              },
+              "description": "The choices. Set it from JS, or leave it and write <option> children."
+            },
+            {
+              "kind": "field",
+              "name": "label"
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "method",
+              "name": "formResetCallback"
+            },
+            {
+              "kind": "method",
+              "name": "#choose",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "focus",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#onKey",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "className",
+              "type": {
+                "text": "string"
+              },
+              "default": "'track'"
+            },
+            {
+              "kind": "field",
+              "name": "role",
+              "type": {
+                "text": "string"
+              },
+              "default": "'radiogroup'"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { value }` after the user picks another option.",
+              "name": "change"
+            },
+            {
+              "description": "Same, fired first.",
+              "name": "input"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "The chosen option's value (defaults to the first)."
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the group."
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "Form field name.",
+              "name": "name"
+            },
+            {
+              "type": {
+                "text": "'md' | 'sm'"
+              },
+              "description": "`sm` is the mono pill of the landing's EN/DE switch.",
+              "name": "size"
+            },
+            {
+              "type": {
+                "text": "'neutral' | 'invert' | 'accent'"
+              },
+              "description": "Colour of the indicator.",
+              "name": "tone"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Fill the container's width.",
+              "name": "stretch"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-segmented",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSegmented",
+          "declaration": {
+            "name": "EwoSegmented",
+            "module": "segmented.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "settings-basics.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Language and Theme, the first rows of every app's settings.",
+          "name": "EwoSettingsBasics",
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#language",
+              "privacy": "private",
+              "type": {
+                "text": "EwoSegmented"
+              },
+              "default": "this.root.querySelector<EwoSegmented>('[part=\"language\"]')!"
+            },
+            {
+              "kind": "field",
+              "name": "#theme",
+              "privacy": "private",
+              "type": {
+                "text": "EwoSegmented"
+              },
+              "default": "this.root.querySelector<EwoSegmented>('[part=\"theme\"]')!"
+            },
+            {
+              "kind": "field",
+              "name": "#languageName",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('#language-name')!"
+            },
+            {
+              "kind": "field",
+              "name": "#themeName",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('#theme-name')!"
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "LanguageChoice"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": {
+                "text": "ThemeChoice"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#unwatch",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <div class=\"row\"> <span class=\"name\" id=\"language-name\"></span> <ewo-segmented part=\"language\"> <span slot=\"icon-system\">${ICONS.languages}</span> </ewo-segmented> </div> <div class=\"row\"> <span class=\"name\" id=\"theme-name\"></span> <ewo-segmented part=\"theme\"> <span slot=\"icon-system\">${ICONS.monitor}</span> <span slot=\"icon-light\">${ICONS.sun}</span> <span slot=\"icon-dark\">${ICONS.moon}</span> </ewo-segmented> </div>`"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { value }` after a pick; store it, apply it through themeShift.",
+              "name": "language-change"
+            },
+            {
+              "description": "`detail: { value }` after a pick; store it, apply it through themeShift.",
+              "name": "theme-change"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "language",
+              "type": {
+                "text": "'system' | 'de' | 'en'"
+              },
+              "description": "The stored language choice."
+            },
+            {
+              "name": "theme",
+              "type": {
+                "text": "'system' | 'light' | 'dark'"
+              },
+              "description": "The stored theme choice."
+            },
+            {
+              "name": "language-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Language\" / \"Sprache\" (the words follow <html lang>)."
+            },
+            {
+              "name": "theme-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Theme\" / \"Design\"."
+            },
+            {
+              "name": "system-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"System\" (both rows)."
+            },
+            {
+              "name": "light-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Light\" / \"Hell\"."
+            },
+            {
+              "name": "dark-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Overrides \"Dark\" / \"Dunkel\"."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-settings-basics",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSettingsBasics",
+          "declaration": {
+            "name": "EwoSettingsBasics",
+            "module": "settings-basics.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "settings-button.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The settings button: the sliders icon, the same in every app.",
+          "name": "EwoSettingsButton",
+          "cssParts": [
+            {
+              "description": "The button, for an app's header proportions.",
+              "name": "button"
+            },
+            {
+              "description": "The text beside the icon (with `show-label`).",
+              "name": "label"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#button",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLButtonElement"
+              },
+              "default": "this.root.querySelector('button')!"
+            },
+            {
+              "kind": "field",
+              "name": "#text",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('[part=\"label\"]')!"
+            },
+            {
+              "kind": "field",
+              "name": "#unwatch",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "focus",
+              "parameters": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "type": {
+                    "text": "FocusOptions"
+                  }
+                }
+              ],
+              "description": "Focuses the inner button (after the sheet closes, focus returns here)."
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "`<button type=\"button\" part=\"button\">${ICON}<span part=\"label\"></span></button>`"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name and tooltip; by default \"Settings\" / \"Einstellungen\" after <html lang>."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Also show the label beside the icon above 640px (Fermata's variant).",
+              "name": "show-label"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-settings-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSettingsButton",
+          "declaration": {
+            "name": "EwoSettingsButton",
+            "module": "settings-button.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "sheet.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A modal: a bottom sheet on phones, a centred card from 720px.",
+          "name": "EwoSheet",
+          "cssParts": [
+            {
+              "name": "dialog"
+            },
+            {
+              "name": "header"
+            },
+            {
+              "name": "body"
+            },
+            {
+              "name": "footer"
+            },
+            {
+              "name": "close"
+            },
+            {
+              "name": "grip"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content (scrolls).",
+              "name": ""
+            },
+            {
+              "name": "heading"
+            },
+            {
+              "name": "footer"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#dialog",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLDialogElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#closing",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#unlock",
+              "privacy": "private",
+              "type": {
+                "text": "() => void | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#startY",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#drag",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#opener",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "default": "null",
+              "description": "What had focus before the sheet opened: focus goes back there on close."
+            },
+            {
+              "kind": "field",
+              "name": "open"
+            },
+            {
+              "kind": "method",
+              "name": "show"
+            },
+            {
+              "kind": "method",
+              "name": "close"
+            },
+            {
+              "kind": "method",
+              "name": "#requestClose",
+              "privacy": "private",
+              "description": "Asks to close: a listener can keep it open by cancelling the event."
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#finish",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#letGo",
+              "privacy": "private",
+              "description": "Blur whatever has focus in the sheet (the dialog, or a control in it)."
+            },
+            {
+              "kind": "method",
+              "name": "#returnFocus",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "quiet",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "Focus ends on the opener, never on the page (modal-focus.ts)."
+            },
+            {
+              "kind": "method",
+              "name": "#release",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <dialog part=\"dialog\" tabindex=\"-1\" autofocus> <div class=\"grip\" part=\"grip\" aria-hidden=\"true\"><span></span></div> <header part=\"header\"> <div class=\"heading\"><slot name=\"heading\"></slot></div> <button class=\"close\" part=\"close\" type=\"button\" aria-label=\"Close\"> <svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 4l8 8M12 4l-8 8\"/></svg> </button> </header> <div class=\"body\" part=\"body\"><slot></slot></div> <footer part=\"footer\"><slot name=\"footer\"></slot></footer> </dialog>`"
+            }
+          ],
+          "events": [
+            {
+              "description": "Cancelable: Escape, backdrop, close button or drag asked to close.",
+              "name": "cancel"
+            },
+            {
+              "description": "After it has closed.",
+              "name": "close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the dialog."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "720px instead of 480px on desktop.",
+              "name": "wide"
+            },
+            {
+              "type": {
+                "text": "'center' | 'top'"
+              },
+              "description": "`top` anchors it high (a search palette).",
+              "name": "placement"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-sheet",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSheet",
+          "declaration": {
+            "name": "EwoSheet",
+            "module": "sheet.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "skeleton.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A placeholder block or lines of text, with a sheen.",
+          "name": "EwoSkeleton",
+          "cssParts": [
+            {
+              "name": "block"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "width",
+              "type": {
+                "text": "string"
+              },
+              "description": "Any CSS length (default 100%)."
+            },
+            {
+              "name": "height",
+              "type": {
+                "text": "string"
+              },
+              "description": "Any CSS length (default 0.875rem)."
+            },
+            {
+              "name": "radius",
+              "type": {
+                "text": "'none' | 'xs' | 'sm' | 'md' | 'lg' | 'pill' | 'circle'"
+              }
+            },
+            {
+              "name": "lines",
+              "type": {
+                "text": "number"
+              },
+              "description": "Render this many text lines instead of one block."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-skeleton",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSkeleton",
+          "declaration": {
+            "name": "EwoSkeleton",
+            "module": "skeleton.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "slider.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A range slider: smooth to drag, snapping to its step, with an optional mark (e.g. the default),\nticks, end captions and a value bubble.",
+          "name": "EwoSlider",
+          "cssProperties": [
+            {
+              "name": "--ewo-slider-knob-size",
+              "default": "22px"
+            },
+            {
+              "name": "--ewo-slider-track-height",
+              "default": "6px"
+            },
+            {
+              "description": "The rail up to the knob.",
+              "name": "--ewo-slider-fill",
+              "default": "var(--ewo-accent)"
+            },
+            {
+              "description": "The rest of the rail.",
+              "name": "--ewo-slider-track",
+              "default": "var(--ewo-fill-3)"
+            },
+            {
+              "name": "--ewo-slider-track-shadow",
+              "default": "none"
+            },
+            {
+              "description": "The knob's background (a colour or a gradient).",
+              "name": "--ewo-slider-knob",
+              "default": "var(--ewo-bg-raised)"
+            },
+            {
+              "description": "The knob's ring and shadow.",
+              "name": "--ewo-slider-knob-shadow"
+            },
+            {
+              "name": "--ewo-slider-tick",
+              "default": "currentColor at 28%"
+            },
+            {
+              "description": "The mark's colour.",
+              "name": "--ewo-slider-mark",
+              "default": "var(--ewo-fg-3)"
+            },
+            {
+              "description": "The bubble's background.",
+              "name": "--ewo-slider-bubble",
+              "default": "var(--ewo-invert)"
+            },
+            {
+              "name": "--ewo-slider-bubble-ink",
+              "default": "var(--ewo-invert-ink)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The hit area.",
+              "name": "rail"
+            },
+            {
+              "description": "The rail's bar.",
+              "name": "track"
+            },
+            {
+              "description": "The filled part of the bar.",
+              "name": "fill"
+            },
+            {
+              "name": "ticks"
+            },
+            {
+              "name": "mark"
+            },
+            {
+              "name": "knob"
+            },
+            {
+              "name": "bubble"
+            },
+            {
+              "description": "The min and max captions.",
+              "name": "ends"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#rail",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#lane",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#fill",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#ticks",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#mark",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#slide",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#knob",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#bubble",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#ends",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#format",
+              "privacy": "private",
+              "type": {
+                "text": "((value: number) => string) | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#drag",
+              "privacy": "private",
+              "type": {
+                "text": "Drag | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#unlisten",
+              "privacy": "private",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "scale",
+              "type": {
+                "text": "Scale"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max"
+            },
+            {
+              "kind": "field",
+              "name": "step"
+            },
+            {
+              "kind": "field",
+              "name": "mark",
+              "type": {
+                "text": "number | null"
+              },
+              "description": "A value marked under the rail (the default, say), or null."
+            },
+            {
+              "kind": "field",
+              "name": "label"
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "format",
+              "description": "Writes a value (bubble, ends, aria-valuetext); default: the page's language plus `unit`.",
+              "type": {
+                "text": "((value: number) => string) | null"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "formResetCallback"
+            },
+            {
+              "kind": "method",
+              "name": "text",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "v",
+                  "default": "this.value"
+                }
+              ],
+              "description": "The value as written for people."
+            },
+            {
+              "kind": "method",
+              "name": "#num",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "fallback",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#place",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "f",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Puts the knob and the fill at `f` (0 to 1): two transforms, nothing measured."
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#choose",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "v",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Sets the value from the user and says so; false when it didn't change."
+            },
+            {
+              "kind": "method",
+              "name": "#down",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#begin",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#move",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "x",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "The knob under the pointer, leaning towards the nearest step; the value follows the step."
+            },
+            {
+              "kind": "method",
+              "name": "#up",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#cancel",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#finish",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#key",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <div class=\"rail\" part=\"rail\"> <div class=\"track\" part=\"track\"> <span class=\"cap\" part=\"fill\"></span> <div class=\"lane\"><span class=\"fill\" part=\"fill\"></span><span class=\"ticks\" part=\"ticks\"></span></div> </div> <div class=\"lane\"> <div class=\"at mark\" hidden><span class=\"notch\" part=\"mark\"></span></div> <div class=\"at slide\"><span class=\"knob\" part=\"knob\"></span><span class=\"bubble\" part=\"bubble\"></span></div> </div> </div> <div class=\"ends\" part=\"ends\" aria-hidden=\"true\"><span></span><span></span></div>`"
+            },
+            {
+              "kind": "field",
+              "name": "role",
+              "type": {
+                "text": "string"
+              },
+              "default": "'slider'"
+            },
+            {
+              "kind": "field",
+              "name": "ariaOrientation",
+              "type": {
+                "text": "string"
+              },
+              "default": "'horizontal'"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { value }` while dragging, each time the value reaches another step.",
+              "name": "input"
+            },
+            {
+              "description": "`detail: { value }` once the user lets go (or for each key press), if the value changed.",
+              "name": "change"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "description": "The current value (snapped to the step, within min and max)."
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "description": "Default 0."
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "description": "Default 100."
+            },
+            {
+              "name": "step",
+              "type": {
+                "text": "number"
+              },
+              "description": "Default 1; decimals are kept exact (0.5, 0.25)."
+            },
+            {
+              "name": "mark",
+              "type": {
+                "text": "number"
+              },
+              "description": "A value to mark under the rail, e.g. the default."
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name."
+            },
+            {
+              "name": "unit",
+              "type": {
+                "text": "string"
+              },
+              "description": "Appended to the value in the bubble, the ends and aria-valuetext (\"5 s\")."
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "Form field name.",
+              "name": "name"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "A dot per step on the rail (up to 100 steps).",
+              "name": "ticks"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The min and max captioned under the rail.",
+              "name": "ends"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "No value bubble over the knob.",
+              "name": "nobubble"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-slider",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSlider",
+          "declaration": {
+            "name": "EwoSlider",
+            "module": "slider.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "slot-reel.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A slot machine's reel: the app renders the strip as children and awaits `spin()`.",
+          "name": "EwoSlotReel",
+          "cssProperties": [
+            {
+              "description": "A row's height (default 84px).",
+              "name": "--ewo-reel-row"
+            },
+            {
+              "description": "How far the edges fade while it spins (default 22%, 30% with three rows).",
+              "name": "--ewo-reel-fade"
+            },
+            {
+              "description": "The light that crosses the window as it lands.",
+              "name": "--ewo-reel-sheen"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "window"
+            },
+            {
+              "name": "track"
+            },
+            {
+              "name": "sheen"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The strip: one child per row.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "track",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "this.root.querySelector('.track')!"
+            },
+            {
+              "kind": "field",
+              "name": "sheen",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "this.root.querySelector('.sheen')!"
+            },
+            {
+              "kind": "field",
+              "name": "strip",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "this.root.querySelector('slot')!"
+            },
+            {
+              "kind": "field",
+              "name": "running",
+              "type": {
+                "text": "Promise<void> | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "motion",
+              "type": {
+                "text": "Animation | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "frame",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "landedTimer",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "rest",
+              "type": {
+                "text": "number"
+              },
+              "description": "The row in the middle of the window at rest."
+            },
+            {
+              "kind": "field",
+              "name": "spinning",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether a spin is running.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "spin",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "options",
+                  "default": "{}",
+                  "type": {
+                    "text": "SpinOptions"
+                  }
+                }
+              ],
+              "description": "Spins from `from` to `to` (rows of the strip); resolves once it has landed. A second call while it runs gets the same promise."
+            },
+            {
+              "kind": "method",
+              "name": "rows",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLElement[]"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "rowHeight",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "offset",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "The track's offset that puts row `index` in the middle of the window."
+            },
+            {
+              "kind": "method",
+              "name": "place",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "run",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "text": "SpinOptions"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "land",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "shine",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "type": {
+                "text": "string"
+              },
+              "default": "'<div class=\"window\" part=\"window\"><div class=\"track\" part=\"track\"><slot></slot></div><div class=\"sheen\" part=\"sheen\"></div></div>'"
+            }
+          ],
+          "events": [
+            {
+              "description": "A row passed the middle of the window: `detail.index`.",
+              "name": "tick"
+            },
+            {
+              "description": "The spin is over: `detail.index` is the row it landed on.",
+              "name": "land"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "rest",
+              "type": {
+                "text": "number"
+              },
+              "description": "The row in the middle of the window at rest (default 0)."
+            },
+            {
+              "name": "rows",
+              "type": {
+                "text": "'1' | '3'"
+              },
+              "description": "The window's height in rows; 3 shows the neighbours, faded (default 1)."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Set by the element while a spin runs.",
+              "name": "spinning"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Set by the element for a moment after it lands.",
+              "name": "landed"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-slot-reel",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSlotReel",
+          "declaration": {
+            "name": "EwoSlotReel",
+            "module": "slot-reel.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "switch.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A switch, optionally as a settings row with a label and a hint.",
+          "name": "EwoSwitch",
+          "cssParts": [
+            {
+              "name": "track"
+            },
+            {
+              "name": "knob"
+            },
+            {
+              "name": "label"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The label.",
+              "name": ""
+            },
+            {
+              "description": "A second, quieter line under the label.",
+              "name": "hint"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "checked"
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "value"
+            },
+            {
+              "kind": "method",
+              "name": "formResetCallback"
+            },
+            {
+              "kind": "method",
+              "name": "#toggle",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <span class=\"text\" part=\"text\"> <span class=\"label\" part=\"label\"><slot></slot></span> <slot name=\"hint\"></slot> </span> <span class=\"track\" part=\"track\"><span class=\"knob\" part=\"knob\"></span></span>`"
+            },
+            {
+              "kind": "field",
+              "name": "role",
+              "type": {
+                "text": "string"
+              },
+              "default": "'switch'"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { checked }` after the user toggles it.",
+              "name": "change"
+            },
+            {
+              "description": "Same, fired first.",
+              "name": "input"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "checked",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Submitted when on (default `on`)."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Label left, switch right, across the full width.",
+              "name": "row"
+            },
+            {
+              "type": {
+                "text": "'neutral' | 'accent'"
+              },
+              "description": "Colour of the track when on.",
+              "name": "tone"
+            },
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "Form field name.",
+              "name": "name"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-switch",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoSwitch",
+          "declaration": {
+            "name": "EwoSwitch",
+            "module": "switch.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "theme-toggle.js",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "storedTheme",
+          "return": {
+            "type": {
+              "text": "ThemeChoice"
+            }
+          },
+          "description": "The stored choice, or 'system'."
+        },
+        {
+          "kind": "function",
+          "name": "setTheme",
+          "parameters": [
+            {
+              "name": "choice",
+              "type": {
+                "text": "ThemeChoice"
+              }
+            }
+          ],
+          "description": "Applies a choice to the page, stores it and syncs theme-color."
+        },
+        {
+          "kind": "function",
+          "name": "restoreTheme",
+          "description": "What the pre-paint script in <head> does (inline it as a classic script)."
+        },
+        {
+          "kind": "class",
+          "description": "The sun/moon button, on the `ewo:theme` contract.",
+          "name": "EwoThemeToggle",
+          "cssProperties": [
+            {
+              "name": "--ewo-theme-toggle-size",
+              "default": "36px"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "button"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#button",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLButtonElement"
+              },
+              "default": "this.root.querySelector('button')!"
+            },
+            {
+              "kind": "field",
+              "name": "#off",
+              "privacy": "private",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#onStorage",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#next",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "`<button type=\"button\" part=\"button\">${ICON}</button>`"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { theme }` after a click.",
+              "name": "change"
+            }
+          ],
+          "attributes": [
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "system → light → dark instead of light ↔ dark.",
+              "name": "cycle"
+            },
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible label for \"switch to light\".",
+              "name": "label-light"
+            },
+            {
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible label for \"switch to dark\".",
+              "name": "label-dark"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-theme-toggle",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "storedTheme",
+          "declaration": {
+            "name": "storedTheme",
+            "module": "theme-toggle.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "setTheme",
+          "declaration": {
+            "name": "setTheme",
+            "module": "theme-toggle.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "restoreTheme",
+          "declaration": {
+            "name": "restoreTheme",
+            "module": "theme-toggle.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "EwoThemeToggle",
+          "declaration": {
+            "name": "EwoThemeToggle",
+            "module": "theme-toggle.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "ticks.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A row of state ticks with a readout line: Pulse's uptime bar.",
+          "name": "EwoTicks",
+          "cssProperties": [
+            {
+              "description": "Height of the ticks.",
+              "name": "--ewo-ticks-h",
+              "default": "32px"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "bar"
+            },
+            {
+              "name": "caption"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#ticks",
+              "privacy": "private",
+              "type": {
+                "text": "Tick[] | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#active",
+              "privacy": "private",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#bar",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLDivElement"
+              },
+              "default": "this.root.querySelector('.bar')!"
+            },
+            {
+              "kind": "field",
+              "name": "#a",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLSpanElement"
+              },
+              "default": "this.root.querySelector('.a')!"
+            },
+            {
+              "kind": "field",
+              "name": "#b",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLSpanElement"
+              },
+              "default": "this.root.querySelector('.b')!"
+            },
+            {
+              "kind": "field",
+              "name": "ticks",
+              "type": {
+                "text": "Tick[]"
+              },
+              "description": "Per-tick `{ label, state, detail }`; wins over `states`."
+            },
+            {
+              "kind": "method",
+              "name": "#setActive",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number | null"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#paint",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <div class=\"bar\" part=\"bar\" role=\"slider\" tabindex=\"0\" aria-valuemin=\"1\"></div> <div class=\"caption\" part=\"caption\" aria-hidden=\"true\"><span class=\"a\"></span><span class=\"b\"></span></div>`"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { index, tick }` when another tick is pointed at.",
+              "name": "ewo-tick"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "states",
+              "type": {
+                "text": "string"
+              },
+              "description": "Space-separated states: ok, warn, bad, unknown, none."
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the slider."
+            },
+            {
+              "name": "start",
+              "type": {
+                "text": "string"
+              },
+              "description": "Caption at the left end while nothing is pointed at."
+            },
+            {
+              "name": "end",
+              "type": {
+                "text": "string"
+              },
+              "description": "Caption at the right end."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-ticks",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoTicks",
+          "declaration": {
+            "name": "EwoTicks",
+            "module": "ticks.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "toaster.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The region toasts appear in. Usually created for you by `toast()`.",
+          "name": "EwoToaster",
+          "cssParts": [
+            {
+              "name": "stack"
+            },
+            {
+              "name": "toast"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#stack",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLDivElement"
+              },
+              "default": "this.root.querySelector('.stack')!"
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "return": {
+                "type": {
+                  "text": "() => void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "{ tone = 'neutral', duration = 2800, action }",
+                  "default": "{}",
+                  "type": {
+                    "text": "ToastOptions"
+                  }
+                }
+              ],
+              "description": "Shows a toast; returns a function that dismisses it early."
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "`<div class=\"stack\" part=\"stack\" role=\"status\" aria-live=\"polite\"></div>`"
+            }
+          ],
+          "attributes": [
+            {
+              "type": {
+                "text": "'bottom' | 'top'"
+              },
+              "name": "position"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-toaster",
+          "customElement": true
+        },
+        {
+          "kind": "function",
+          "name": "toast",
+          "return": {
+            "type": {
+              "text": "() => void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "message",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "options",
+              "optional": true,
+              "type": {
+                "text": "ToastOptions"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoToaster",
+          "declaration": {
+            "name": "EwoToaster",
+            "module": "toaster.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "toast",
+          "declaration": {
+            "name": "toast",
+            "module": "toaster.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "waiting.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Thrown when the 12 s are up; `code` is `timeout` for an app's error words.",
+          "name": "WaitTimeout",
+          "members": [
+            {
+              "kind": "field",
+              "name": "code",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "default": "'timeout'"
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "'TimeoutError'"
+            }
+          ],
+          "superclass": {
+            "name": "Error",
+            "module": "waiting.js"
+          }
+        },
+        {
+          "kind": "function",
+          "name": "configureWaiting",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "text": "{ mark?: string | (() => Node) }"
+              }
+            }
+          ],
+          "description": "A game's own working mark: SVG or HTML markup, or a function that builds it."
+        },
+        {
+          "kind": "function",
+          "name": "isRetryable",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "parameters": [
+            {
+              "name": "error",
+              "type": {
+                "text": "unknown"
+              }
+            }
+          ],
+          "description": "Whether an error deserves \"Try again\" rather than a shake."
+        },
+        {
+          "kind": "function",
+          "name": "track",
+          "return": {
+            "type": {
+              "text": "Promise<T | undefined>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "control",
+              "type": {
+                "text": "Element | null | undefined"
+              }
+            },
+            {
+              "name": "action",
+              "type": {
+                "text": "(signal: AbortSignal) => Promise<T>"
+              }
+            },
+            {
+              "name": "options",
+              "default": "{}",
+              "type": {
+                "text": "WaitOptions"
+              }
+            }
+          ],
+          "description": "Runs `action` with the wait shown at `control` (any element; null runs it without a control).\nResolves with the action's result, or `undefined` when the control was already waiting (a second\ntap); rejects with the action's error or a WaitTimeout."
+        },
+        {
+          "kind": "variable",
+          "name": "overlay"
+        },
+        {
+          "kind": "variable",
+          "name": "retry"
+        },
+        {
+          "kind": "variable",
+          "name": "text"
+        },
+        {
+          "kind": "variable",
+          "name": "WAIT_CSS",
+          "default": "` @layer ewo-wait { /* While the overlay shows, the control's own label steps aside (text and children), keeping its size. */ [data-wait] { color: transparent !important; } [data-wait] > :not(.ewo-wait) { visibility: hidden; } .ewo-wait { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 0.45em; padding: 0 0.6em; border-radius: inherit; color: var(--ewo-wait-fg, currentColor); font: inherit; line-height: 1.1; white-space: nowrap; pointer-events: none; animation: ewo-wait-in 140ms ease-out; } .ewo-wait-text { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; } .ewo-wait-text:empty { display: none; } /* Words too long for the control: a small bubble just under it. */ .ewo-wait[data-bubble] .ewo-wait-text { position: absolute; top: calc(100% + 6px); left: 50%; z-index: 5; max-width: none; translate: -50% 0; padding: 4px 10px; border-radius: 999px; background: var(--ewo-wait-bubble-bg, var(--ewo-fg, #222)); color: var(--ewo-wait-bubble-fg, var(--ewo-bg, #fff)); font-size: 12px; font-weight: 600; line-height: 1.3; letter-spacing: 0; text-transform: none; box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.5); animation: ewo-wait-in 140ms ease-out; } .ewo-wait-retry { display: none; width: 1.1em; height: 1.1em; flex: none; } .ewo-wait-retry svg { display: block; width: 100%; height: 100%; } [data-wait='failed'] .ewo-wait-retry { display: block; } .ewo-wait-mark { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.2em; height: 1em; } .ewo-wait-mark > span { display: inline-flex; align-items: center; gap: 0.2em; } .ewo-wait-mark i { width: 0.3em; height: 0.3em; border-radius: 50%; background: currentColor; animation: ewo-wait-dot 900ms ease-in-out infinite; } .ewo-wait-mark i:nth-child(2) { animation-delay: 150ms; } .ewo-wait-mark i:nth-child(3) { animation-delay: 300ms; } [data-wait='failed'] .ewo-wait-mark { display: none; } [data-shake] { animation: ewo-wait-shake ${SHAKE}ms ease-in-out; } .ewo-wait-live { position: fixed; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } @keyframes ewo-wait-in { from { opacity: 0; } } @keyframes ewo-wait-dot { 0%, 80%, 100% { opacity: 0.3; scale: 0.75; } 40% { opacity: 1; scale: 1; } } @keyframes ewo-wait-shake { 20% { translate: -5px 0; } 40% { translate: 5px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } } @media (prefers-reduced-motion: reduce) { .ewo-wait-mark i { animation: none; opacity: 0.75; } [data-shake] { animation: none; } .ewo-wait { animation: none; } } } `",
+          "description": "The look, layered so an app's own rules win; `!important` only where a control's colour must yield."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "WaitTimeout",
+          "declaration": {
+            "name": "WaitTimeout",
+            "module": "waiting.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "configureWaiting",
+          "declaration": {
+            "name": "configureWaiting",
+            "module": "waiting.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "isRetryable",
+          "declaration": {
+            "name": "isRetryable",
+            "module": "waiting.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "track",
+          "declaration": {
+            "name": "track",
+            "module": "waiting.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "WAIT_CSS",
+          "declaration": {
+            "name": "WAIT_CSS",
+            "module": "waiting.js"
+          }
+        }
+      ]
+    }
+  ]
+}

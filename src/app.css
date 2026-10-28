@@ -1,0 +1,166 @@
+/* Folio's shared tokens and fonts (vendor/ewo). Monochrome for now: the thumbnails bring the
+   colour, and Encore's own pair comes with its look (plans/encore.md, Phase 2). */
+@import '../vendor/ewo/tokens/index.css';
+@import '../vendor/ewo/tokens/base.css';
+
+/* Two quick taps on a control must not zoom the page (learnings/ios-and-webkit.md). */
+:where(button, a, label, summary, input, select, textarea, [role='button']) {
+  touch-action: manipulation;
+}
+
+html {
+  overflow-x: clip;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* iOS zooms the page into any field under 16px. */
+@media (hover: none) {
+  input,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Section headings in the panels, as in the other apps. */
+.label {
+  margin: 0;
+  font-family: var(--ewo-mono);
+  font-size: var(--ewo-text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ewo-fg-3);
+}
+
+.field {
+  width: 100%;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--ewo-line);
+  border-radius: var(--ewo-r-sm);
+  background: var(--ewo-bg);
+  font-size: var(--ewo-text-sm);
+  transition: border-color var(--ewo-dur-1) var(--ewo-ease);
+}
+
+.field:hover {
+  border-color: var(--ewo-line-strong);
+}
+
+.field:focus-visible {
+  outline: none;
+  border-color: var(--ewo-fg-2);
+}
+
+.field::placeholder {
+  color: var(--ewo-fg-3);
+}
+
+.field.invalid {
+  border-color: var(--ewo-bad);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--ewo-line);
+  border-radius: var(--ewo-r-pill);
+  background: var(--ewo-bg-raised);
+  font-size: var(--ewo-text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color var(--ewo-dur-1) var(--ewo-ease), transform var(--ewo-dur-1) var(--ewo-ease);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--ewo-fill);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.button.primary {
+  border-color: transparent;
+  background: var(--ewo-invert);
+  color: var(--ewo-invert-ink);
+}
+
+.button.primary:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--ewo-invert) 88%, var(--ewo-bg));
+}
+
+.button.quiet {
+  border-color: transparent;
+  background: transparent;
+}
+
+.button.danger {
+  color: var(--ewo-bad);
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ewo-r-pill);
+  background: transparent;
+  color: var(--ewo-fg-3);
+}
+
+.icon-button:hover {
+  background: var(--ewo-fill);
+  color: var(--ewo-fg);
+}
+
+.mono {
+  font-family: var(--ewo-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

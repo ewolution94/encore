@@ -1,0 +1,123 @@
+@layer ewo {
+/* Each project's own colour, lifted from its mark (the landing's table).
+   The light values are deepened for contrast on paper. The landing, Fermata,
+   Cantina and Census are monochrome on purpose.
+
+   Two ways in:
+   - the palette, --ewo-project-<name> and --ewo-project-<name>-2, for a page
+     that already has its own hook (the landing's and Census's data-slug);
+   - data-ewo-project="<name>" on any ancestor, which points --ewo-accent at
+     that project, so every component under it picks the colour up. */
+
+:root {
+  --ewo-project-clinch:    light-dark(#d9540f, #ff8a3d);
+  --ewo-project-clinch-2:  light-dark(#b98100, #ffc53d);
+  --ewo-project-planum:    light-dark(#0379ad, #38bdf8);
+  --ewo-project-planum-2:  light-dark(#0d7f75, #2dd4bf);
+  --ewo-project-axioma:    light-dark(#4b2ff0, #8b74ff);
+  --ewo-project-axioma-2:  light-dark(#0591ad, #0dccf2);
+  --ewo-project-pulse:     light-dark(#0a7ea4, #5ad1ff);
+  --ewo-project-pulse-2:   light-dark(#08875c, #34d399);
+  --ewo-project-harbor:    light-dark(#0b8f7a, #33e6c8);
+  --ewo-project-harbor-2:  light-dark(#b76b00, #ffb545);
+  --ewo-project-mulpur:    light-dark(#b36b00, #f5a524);
+  --ewo-project-mulpur-2:  light-dark(#52525b, #d4d4d8);
+  --ewo-project-fermata:   light-dark(#27272a, #ecebe8);
+  --ewo-project-fermata-2: light-dark(#52525b, #b4b4bb);
+  /* Cantina's mark is green on the landing; the app itself is monochrome. */
+  --ewo-project-cantina:   light-dark(#2f7d4f, #6fd39a);
+  --ewo-project-cantina-2: light-dark(#5f7a12, #c2dc6a);
+  /* Census's and Prospekt's colours come from their app icons (2026-10-02);
+     both apps stay monochrome. */
+  --ewo-project-census:     light-dark(#3d5070, #9fb1cc);
+  --ewo-project-census-2:   light-dark(#a77a00, #ffd166);
+  --ewo-project-prospekt:   light-dark(#c8183a, #ff6b78);
+  --ewo-project-prospekt-2: light-dark(#52525b, #d4d4d8);
+  /* Aale Spiele: the eel's pink and the yellow ball it chases (its app icon, 2026-10-06). */
+  --ewo-project-aale-spiele:   light-dark(#b8137a, #ff62c2);
+  --ewo-project-aale-spiele-2: light-dark(#8a6500, #ffe14d);
+  /* TCGSL: foil gold and the holo teal of its set symbol (its app icon, 2026-10-06); the app
+     itself stays monochrome, the set logos and cards bring the colour. */
+  --ewo-project-tcgsl:   light-dark(#8a6200, #f2c14e);
+  --ewo-project-tcgsl-2: light-dark(#0c7b84, #4fd1d9);
+  /* Schätzle: OTTO's red and its near-black ink (the user works at otto.de; OTTO's design tokens,
+     2026-10-06). The dark side is lightened for contrast on the night page. */
+  --ewo-project-schaetzle:   light-dark(#dc001d, #ff5a68);
+  --ewo-project-schaetzle-2: light-dark(#212121, #f0f0f0);
+  /* Verso: plum, between Axioma's blue-violet and Aale Spiele's pink; its second colour is the
+     icon's dark full stop (lilac at night). */
+  --ewo-project-verso:   light-dark(#7b2598, #d38bea);
+  --ewo-project-verso-2: light-dark(#2b0a38, #f6e0ff);
+  /* Vollmond: the woodcut's two inks, indigo and fluorescent pink (its card art, 2026-10-07); the
+     dark side lightens the indigo to moonlight for contrast on the night page. */
+  --ewo-project-vollmond:   light-dark(#1f2668, #a8b0ff);
+  --ewo-project-vollmond-2: light-dark(#b3124f, #ff4d9d);
+  /* Kritzle's highlighter lime (deepened to olive on paper) and its washi-tape coral; the app
+     itself is light only. */
+  --ewo-project-kritzle:   light-dark(#4f6b05, #c8f53c);
+  --ewo-project-kritzle-2: light-dark(#b8452a, #ff8f70);
+  /* CDNMS: the case file's ochre (manila on dark pages) and the stamp's red. */
+  --ewo-project-cdnms:   light-dark(#8a6a2a, #e3cf9c);
+  --ewo-project-cdnms-2: light-dark(#b32d27, #ff6b5e);
+  /* Stichle: the card table's green baize and the compass rose's gold; the app itself is light
+     only. */
+  --ewo-project-stichle:   light-dark(#1f5a3c, #7fd3a4);
+  --ewo-project-stichle-2: light-dark(#8a6420, #e9c66a);
+  /* Stammtisch (2026-10-13): bordeaux leads, the baize green second. */
+  --ewo-project-stammtisch:   light-dark(#5b1427, #c2566d);
+  --ewo-project-stammtisch-2: light-dark(#2f6b4f, #5fae86);
+  /* Würfle: the cobalt of its glass dice and the gold of its throw; the app itself is dark only, so
+     the dark value is the one the family shows. */
+  --ewo-project-wuerfle:   light-dark(#2443c4, #5a82ff);
+  --ewo-project-wuerfle-2: light-dark(#8a6a10, #f0c75e);
+  /* Yksi: the lagoon of its card backs and the sun of its call; the cards bring their own four
+     inks. */
+  --ewo-project-yksi:   light-dark(#007183, #49d2ea);
+  --ewo-project-yksi-2: light-dark(#866500, #fbd530);
+  /* Skibbo: the fuchsia of its 9 to 12 (the enamel plates that finish a pile) and the sky blue of
+     its 1s; the app itself is light only, enamel on a lime-washed wall. */
+  --ewo-project-skibbo:   light-dark(#9f2294, #ea7bdd);
+  --ewo-project-skibbo-2: light-dark(#0068a7, #78c7fd);
+  /* Randomiser: the meeting's wheel at the fair. Candy-apple red (the tent's, nudged towards
+     vermilion between Schätzle's red and Clinch's orange) and the bulbs' gold. */
+  --ewo-project-randomiser:   light-dark(#c8341a, #ff7458);
+  --ewo-project-randomiser-2: light-dark(#8a6400, #f2b134);
+  /* CurveExtreme: Ultraviolet leads (the curve), Ember second (its head); between Axioma's
+     blue-violet and Verso's plum, and the only black card on Aale Spiele. */
+  --ewo-project-curveextreme:   light-dark(#8226dc, #b07aff);
+  --ewo-project-curveextreme-2: light-dark(#9a5600, #ffa133);
+  /* PokeProxy: the green of a self-healing cutting mat and the yellow of its grid lines; the app
+     itself stays monochrome, the cards bring the colour. */
+  --ewo-project-pokeproxy:   light-dark(#0b7a55, #4fd6a5);
+  --ewo-project-pokeproxy-2: light-dark(#8a6500, #f2cf4a);
+}
+
+[data-ewo-project='clinch']  { --ewo-accent: var(--ewo-project-clinch);  --ewo-accent-2: var(--ewo-project-clinch-2); }
+[data-ewo-project='planum']  { --ewo-accent: var(--ewo-project-planum);  --ewo-accent-2: var(--ewo-project-planum-2); }
+[data-ewo-project='axioma']  { --ewo-accent: var(--ewo-project-axioma);  --ewo-accent-2: var(--ewo-project-axioma-2); }
+[data-ewo-project='pulse']   { --ewo-accent: var(--ewo-project-pulse);   --ewo-accent-2: var(--ewo-project-pulse-2); }
+[data-ewo-project='harbor']  { --ewo-accent: var(--ewo-project-harbor);  --ewo-accent-2: var(--ewo-project-harbor-2); }
+[data-ewo-project='mulpur']  { --ewo-accent: var(--ewo-project-mulpur);  --ewo-accent-2: var(--ewo-project-mulpur-2); }
+[data-ewo-project='fermata'] { --ewo-accent: var(--ewo-project-fermata); --ewo-accent-2: var(--ewo-project-fermata-2); }
+[data-ewo-project='aale-spiele'] { --ewo-accent: var(--ewo-project-aale-spiele); --ewo-accent-2: var(--ewo-project-aale-spiele-2); }
+[data-ewo-project='schaetzle'] { --ewo-accent: var(--ewo-project-schaetzle); --ewo-accent-2: var(--ewo-project-schaetzle-2); }
+[data-ewo-project='verso'] { --ewo-accent: var(--ewo-project-verso); --ewo-accent-2: var(--ewo-project-verso-2); }
+[data-ewo-project='vollmond'] { --ewo-accent: var(--ewo-project-vollmond); --ewo-accent-2: var(--ewo-project-vollmond-2); }
+[data-ewo-project='kritzle'] { --ewo-accent: var(--ewo-project-kritzle); --ewo-accent-2: var(--ewo-project-kritzle-2); }
+[data-ewo-project='cdnms'] { --ewo-accent: var(--ewo-project-cdnms); --ewo-accent-2: var(--ewo-project-cdnms-2); }
+[data-ewo-project='stichle'] { --ewo-accent: var(--ewo-project-stichle); --ewo-accent-2: var(--ewo-project-stichle-2); }
+[data-ewo-project='stammtisch'] { --ewo-accent: var(--ewo-project-stammtisch); --ewo-accent-2: var(--ewo-project-stammtisch-2); }
+[data-ewo-project='wuerfle'] { --ewo-accent: var(--ewo-project-wuerfle); --ewo-accent-2: var(--ewo-project-wuerfle-2); }
+[data-ewo-project='yksi'] { --ewo-accent: var(--ewo-project-yksi); --ewo-accent-2: var(--ewo-project-yksi-2); }
+[data-ewo-project='skibbo'] { --ewo-accent: var(--ewo-project-skibbo); --ewo-accent-2: var(--ewo-project-skibbo-2); }
+[data-ewo-project='randomiser'] { --ewo-accent: var(--ewo-project-randomiser); --ewo-accent-2: var(--ewo-project-randomiser-2); }
+[data-ewo-project='curveextreme'] { --ewo-accent: var(--ewo-project-curveextreme); --ewo-accent-2: var(--ewo-project-curveextreme-2); }
+[data-ewo-project='pokeproxy'] { --ewo-accent: var(--ewo-project-pokeproxy); --ewo-accent-2: var(--ewo-project-pokeproxy-2); }
+[data-ewo-project='cantina'],
+[data-ewo-project='census'],
+[data-ewo-project='landing'] { --ewo-accent: var(--ewo-fg-2); --ewo-accent-2: var(--ewo-fg); }
+
+/* Accent ink: dark text on the bright dark-theme accents, light on the
+   deepened light-theme ones. */
+[data-ewo-project] { --ewo-accent-ink: light-dark(#fbfaf8, #09090b); }
+}

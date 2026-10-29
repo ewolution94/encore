@@ -107,11 +107,12 @@ can need `spicetify backup apply` until Spicetify catches up.
 
 Install on the PC (PowerShell, Spotify from spotify.com rather than the Microsoft Store; open a new
 PowerShell window after the installer, so `spicetify` is on the PATH; the Extensions folder may not
-exist yet, so it's asked for and made):
+exist yet, so it's asked for and made; on its first run `spicetify` also prints which config files it
+generated, so only the line that is a folder counts):
 
 ```powershell
 iwr -useb https://raw.githubusercontent.com/spicetify/cli/main/install.ps1 | iex
-$ext = Join-Path (spicetify path userdata) 'Extensions'; New-Item -ItemType Directory -Force $ext | Out-Null
+$data = spicetify path userdata | Where-Object { Test-Path $_ -PathType Container } | Select-Object -First 1; $ext = Join-Path $data 'Extensions'; New-Item -ItemType Directory -Force $ext | Out-Null
 iwr https://raw.githubusercontent.com/ewolution94/encore/release/spicetify/encore-livesets.js -OutFile (Join-Path $ext 'encore-livesets.js')
 spicetify config extensions encore-livesets.js
 spicetify apply

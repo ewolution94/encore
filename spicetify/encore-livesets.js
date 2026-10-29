@@ -14,7 +14,7 @@
 // It never deletes anything: a set removed in Encore leaves its playlist, with its tracks greyed out.
 //
 // Install (Windows, PowerShell), once Spicetify is installed:
-//   $ext = Join-Path (spicetify path userdata) 'Extensions'; New-Item -ItemType Directory -Force $ext | Out-Null
+//   $data = spicetify path userdata | Where-Object { Test-Path $_ -PathType Container } | Select-Object -First 1; $ext = Join-Path $data 'Extensions'; New-Item -ItemType Directory -Force $ext | Out-Null
 //   iwr https://raw.githubusercontent.com/ewolution94/encore/release/spicetify/encore-livesets.js -OutFile (Join-Path $ext 'encore-livesets.js')
 //   spicetify config extensions encore-livesets.js
 //   spicetify apply

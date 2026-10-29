@@ -95,6 +95,27 @@ The stack is `deploy/portainer-stack.yml` (never `docker-compose.yml`, which bui
 Installed on a phone or a Mac, Encore opens on a splash of its icon and keeps an offline shell
 (`public/sw.js`); the sets always come from the server.
 
+## Livesets in Spotify (Spicetify)
+
+Spotify's Web API can neither add local files to a playlist nor make folders, so the playlists come
+from `spicetify/encore-livesets.js`, a [Spicetify](https://spicetify.app) extension in the Spotify
+app on the PC. It reads Local Files every few minutes, and for each set (one album each) that has
+stopped arriving from Drive it makes a playlist named after the set in a "Livesets" folder, the
+newest on top, with the tracks in track order; a set published again gets its playlist put in order
+again. It deletes nothing. Spicetify is unofficial: it patches the Spotify app, and a Spotify update
+can need `spicetify backup apply` until Spicetify catches up.
+
+Install on the PC (PowerShell, Spotify from spotify.com rather than the Microsoft Store):
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/spicetify/cli/main/install.ps1 | iex
+iwr https://raw.githubusercontent.com/ewolution94/encore/release/spicetify/encore-livesets.js -OutFile "$env:APPDATA\spicetify\Extensions\encore-livesets.js"
+spicetify config extensions encore-livesets.js
+spicetify apply
+```
+
+`tests/spicetify.test.mjs` runs the file as it ships against a stand-in for the app's functions.
+
 ## Layout
 
 ```
@@ -104,5 +125,6 @@ src/         the page (Svelte 5): the sets list, the check view, settings, Engli
 scripts/     fixtures.mjs builds .dev/staging for the dev server
 tests/       node --test; real tracklists in tests/fixtures/info
 deploy/      the Portainer stack
+spicetify/   the extension that files each set as a playlist in Spotify on the PC
 brand/       the icon (development/plans/app-icons, the Field set)
 ```

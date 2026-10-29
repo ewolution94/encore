@@ -79,13 +79,16 @@ build, a smoke test of the production server) gates `docker-publish.yml`, which 
 
 The stack is `deploy/portainer-stack.yml` (never `docker-compose.yml`, which builds locally):
 
-- **Encore** on the port from the workspace's registry, as root, because it writes into a DSM shared
-  folder (`/volume1/music/Encore` → `/library`), which Synology Drive syncs to the PC.
+- **Encore** on the port from the workspace's registry. `/library` is `music/Encore` mounted through
+  the NAS's own SMB as the DSM user `encore` (`ENCORE_SMB_USER`, `ENCORE_SMB_PASSWORD`), not a bind
+  mount: Synology Drive only syncs files DSM's file services tell it about, and a container writing
+  straight to the disk tells it nothing.
 - **Pinchflat** beside it, pinned by digest and without a published port. It watches the YouTube
   playlist and downloads into the `staging` volume, which Encore reads. Its yt-dlp settings
   (`/config/extras/yt-dlp-configs/base-config.txt`) add the top comments to each info JSON.
 - Stack variables, set in Portainer: `ENCORE_ACCESS_AUD` (the Access application's tag; until it's
-  set Encore answers nothing but `/healthz`), `ENCORE_TG_BOT_TOKEN` and `ENCORE_TG_CHAT_ID`.
+  set Encore answers nothing but `/healthz`), `ENCORE_TG_BOT_TOKEN`, `ENCORE_TG_CHAT_ID`,
+  `ENCORE_SMB_USER` and `ENCORE_SMB_PASSWORD` (no commas: Docker's mount options split on them).
 - encore.ewolution.cloud sits behind Cloudflare Access, with a bypass for the icons, the manifest and
   the iOS launch images, which iOS fetches without the login cookie.
 

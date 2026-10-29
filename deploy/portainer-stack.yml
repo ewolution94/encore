@@ -13,8 +13,8 @@ services:
     image: ghcr.io/ewolution94/encore:latest
     container_name: encore
     restart: unless-stopped
-    # Encore writes the tracks into a DSM shared folder, which belongs to DSM's users, not to the
-    # image's `node` user; as root its files land like any other there and Drive syncs them.
+    # Root inside the container; the files it writes into the library still belong to the DSM user
+    # `encore`, through the SMB mount below.
     user: "0:0"
     healthcheck:
       # Every ~13½ minutes, each container on its own interval so they never line up (plans/nas-load.md).
@@ -43,7 +43,7 @@ services:
       # Pinchflat's downloads, read only.
       - staging:/staging:ro
       # The synced folder: Synology Drive takes it to the PC, Spotify reads it there.
-      - /volume1/music/Encore:/library
+      - library:/library
     networks:
       - ewolution
     labels:
@@ -77,6 +77,16 @@ volumes:
   encore-data:
   pinchflat-config:
   staging:
+  # music/Encore through the NAS's own SMB, as the DSM user `encore` (Read/Write on `music`). Not a
+  # bind mount: Synology Drive only syncs what DSM's file services tell it about, and a container
+  # writing straight to the disk tells it nothing (2026-10-29: the first tracks never left the NAS).
+  # The password goes in Portainer's stack variables and must not contain a comma.
+  library:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "//192.168.178.36/music/Encore"
+      o: "username=${ENCORE_SMB_USER},password=${ENCORE_SMB_PASSWORD},vers=3.0,uid=0,gid=0,file_mode=0644,dir_mode=0755"
 
 networks:
   # The shared network Census listens on; it exists already.

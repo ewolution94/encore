@@ -242,3 +242,20 @@ test('a set whose files aren’t Encore’s gets no cover and costs no download'
   assert.deepEqual([done.created, done.covered], [['My mix'], []]);
   assert.deepEqual(state.fetched, []);
 });
+
+test('the full set, track 0, leads its playlist, also when Spotify reads no number for it', async () => {
+  const { state, sync } = spotify();
+  const old = state.now - 10 * 60_000;
+  state.local = [track('Set', 2, 'Song', old), track('Set', 1, 'Intro', old), track('Set', 0, 'Full set', old)];
+  await sync();
+  assert.deepEqual(titles(state, folderOf(state).items[0].uri), ['Full set', 'Intro', 'Song']);
+
+  // A set published before the full set existed: the next pass puts it first in the same playlist.
+  const later = spotify();
+  later.state.local = [track('Old', 1, 'Intro', old), track('Old', 2, 'Song', old)];
+  await later.sync();
+  later.state.local.push({ ...track('Old', 0, 'Full set', old + 60_000), trackNumber: undefined });
+  const done = await later.sync();
+  assert.deepEqual(done.updated, ['Old']);
+  assert.deepEqual(titles(later.state, folderOf(later.state).items[0].uri), ['Full set', 'Intro', 'Song']);
+});

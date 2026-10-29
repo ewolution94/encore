@@ -1,8 +1,9 @@
 // Publishing a set: the trimmed set encoded once (MP3, CBR 320, no bit reservoir), then cut into
 // its tracks at frame boundaries without encoding again, so nothing pads the joins and Spotify plays
-// them through (plans/encore.md, Phase 0's gap tests). The tracks are tagged, with the set's cover,
-// then moved into the library each under a temporary dot-name first, so Drive and Spotify never see
-// half a file.
+// them through (plans/encore.md, Phase 0's gap tests). Beside the tracks goes the whole set as one
+// file, track 0: Spotify's iPhone app leaves a short gap between local files, which no cut can help.
+// Everything is tagged, with the set's cover, then moved into the library each under a temporary
+// dot-name first, so Drive and Spotify never see half a file.
 
 import { copyFile, mkdir, rename, rm, unlink } from 'node:fs/promises';
 import path from 'node:path';
@@ -28,6 +29,9 @@ export function trackFileName({ id, album, number, total, artist, title }) {
   const parts = [cleanPart(album, 60) || id, String(number).padStart(digits, '0'), cleanPart(artist, 40), cleanPart(title, 60)].filter(Boolean);
   return `${parts.join(' - ')} [${id}].mp3`;
 }
+
+/** The whole set's title; its track number is 0, so it leads the set in Spotify. */
+export const FULL_SET = 'Full set';
 
 /** Every track as it will be tagged and named: the list's artist, else the set's DJ. */
 export function trackTags(id, draft) {
@@ -110,6 +114,22 @@ export async function publishSet({ id, audio, thumb = null, duration, draft, lib
       ], { timeoutMs: 120_000, signal });
       parts.push({ from: out, name: tag.file });
       onProgress('cutting', (i + 1) / plan.length);
+    }
+
+    // The whole set as one file too, when there's more than one track: the same encode, tagged.
+    if (plan.length > 1) {
+      const full = path.join(dir, 'full.mp3');
+      // prettier-ignore
+      await runFfmpeg(ffmpeg, [
+        '-i', whole, ...(cover ? ['-i', cover] : []), '-map', '0:a',
+        ...(cover ? ['-map', '1:v', '-disposition:v:0', 'attached_pic', '-metadata:s:v', 'comment=Cover (front)'] : []),
+        '-c', 'copy', '-map_metadata', '-1', '-id3v2_version', '3',
+        '-metadata', `title=${FULL_SET}`, '-metadata', `artist=${draft.albumArtist}`,
+        '-metadata', `album=${draft.album}`, '-metadata', `album_artist=${draft.albumArtist}`,
+        '-metadata', `track=0/${tags.length}`, full,
+      ], { timeoutMs: 600_000, signal });
+      const name = trackFileName({ id, album: draft.album, number: 0, total: tags.length, artist: draft.albumArtist, title: FULL_SET });
+      parts.push({ from: full, name });
     }
 
     await mkdir(libraryDir, { recursive: true });

@@ -32,6 +32,10 @@ YouTube playlist ──► Pinchflat (NAS) ──► staging: <id>.opus, <id>.in
   and the last no `-to`, or the encoder's priming frame and the last frame get lost.
 - **Tags.** Title and artist per track (the list's artist, else the set's DJ), the set as the album
   (unique per set, so Spotify keeps it together), the DJ as album artist, `n/total`. ID3v2.3.
+- **Full set.** Beside the tracks, the whole trimmed set as one more file (the same encode, tagged
+  "Full set", track 0, so it leads the album and the set's playlist): Spotify's iPhone app leaves a
+  short gap between local files that no cut can help (the user, 2026-10-29). A set without a
+  tracklist is one file already and gets no second one.
 - **Cover.** A 720 px square from the middle of Pinchflat's thumbnail (as high as the 16:9 picture,
   so a 4:3 thumbnail's bars stay out), on every track. Its one frame gets `-itsoffset` of the cut's
   start, or the output `-ss` drops it from every track after the first; the audio stays byte for byte

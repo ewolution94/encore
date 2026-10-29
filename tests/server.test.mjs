@@ -96,13 +96,14 @@ test('scan, publish, publish again and remove, against a real ffmpeg', { skip: !
   assert.equal(set.changed, false);
   const files = readdirSync(library).sort();
   assert.deepEqual(files, [
+    `TEST DJ @ Somewhere 2026 - 00 - Test DJ - Full set [${id}].mp3`,
     `TEST DJ @ Somewhere 2026 - 01 - Test DJ - Intro [${id}].mp3`,
     `TEST DJ @ Somewhere 2026 - 02 - Artist One - First [${id}].mp3`,
     `TEST DJ @ Somewhere 2026 - 03 - Artist Two - Second [${id}].mp3`,
   ]);
   const probe = (file) =>
     JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration:format_tags=title,artist,album,album_artist,track', '-of', 'json', path.join(library, file)])).format;
-  const second = probe(files[1]);
+  const second = probe(files[2]);
   assert.deepEqual(
     { title: second.tags.title, artist: second.tags.artist, album: second.tags.album, albumArtist: second.tags.album_artist, track: second.tags.track },
     { title: 'First', artist: 'Artist One', album: 'TEST DJ @ Somewhere 2026', albumArtist: 'Test DJ', track: '2/3' },
@@ -112,10 +113,17 @@ test('scan, publish, publish again and remove, against a real ffmpeg', { skip: !
   );
   assert.deepEqual(
     covers.map((s) => s.map((v) => [v.width, v.height, v.disposition.attached_pic])),
-    [[[720, 720, 1]], [[720, 720, 1]], [[720, 720, 1]]],
-    'every track carries the square cover, the ones after a cut too',
+    [[[720, 720, 1]], [[720, 720, 1]], [[720, 720, 1]], [[720, 720, 1]]],
+    'every file carries the square cover, the ones after a cut too',
   );
-  const lengths = files.map((f) => Number(probe(f).duration));
+  // The whole set, track 0: the trimmed set in one file, for players that pause between files.
+  const full = probe(files[0]);
+  assert.deepEqual(
+    { title: full.tags.title, artist: full.tags.artist, album: full.tags.album, track: full.tags.track },
+    { title: 'Full set', artist: 'Test DJ', album: 'TEST DJ @ Somewhere 2026', track: '0/3' },
+  );
+  assert.ok(Math.abs(Number(full.duration) - 43) < 0.1, `the full set runs from the trim to the end: ${full.duration}`);
+  const lengths = files.slice(1).map((f) => Number(probe(f).duration));
   assert.ok(Math.abs(lengths[0] - 13) < 0.1, `the first track runs from the trim: ${lengths[0]}`);
   assert.ok(Math.abs(lengths.reduce((a, b) => a + b) - 43) < 0.1, `nothing lost at the joins: ${lengths}`);
 
@@ -128,11 +136,17 @@ test('scan, publish, publish again and remove, against a real ffmpeg', { skip: !
   set = encore.list()[0];
   assert.equal(set.changed, false);
   assert.deepEqual(readdirSync(library).sort().at(-1), `TEST DJ @ Somewhere 2026 - 03 - Artist Two - Second (VIP) [${id}].mp3`);
-  assert.equal(readdirSync(library).length, 3, 'the old name is gone');
+  assert.equal(readdirSync(library).length, 4, 'the old name is gone');
 
   assert.deepEqual(await encore.remove(id), { ok: true });
   assert.deepEqual(readdirSync(library), []);
   assert.equal(encore.list()[0].status, 'removed');
+
+  // A set without a tracklist is one file already: no second copy of it as the full set.
+  encore.saveDraft(id, { ...encore.store.get(id).draft, tracks: [] });
+  encore.publish(id);
+  await settled();
+  assert.deepEqual(readdirSync(library), [`TEST DJ @ Somewhere 2026 - 01 - Test DJ - TEST DJ @ Somewhere 2026 [${id}].mp3`]);
 
   // A draft with errors never reaches the queue.
   encore.saveDraft(id, { ...encore.store.get(id).draft, tracks: [{ start: 0, artist: '', title: 'A' }, { start: 99, artist: '', title: 'B' }] });

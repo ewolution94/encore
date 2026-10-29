@@ -124,7 +124,7 @@ export function createEncore({ stagingDir, libraryDir, dataDir, ffmpeg = 'ffmpeg
         const stale = set.files.filter((name) => !files.includes(name));
         await removeFiles(libraryDir, stale);
         store.markPublished(id, draft, files);
-        log.info(`Published ${id}: ${files.length} track(s)`);
+        log.info(`Published ${id}: ${files.length} file(s)`);
       } catch (error) {
         store.setError(id, error.name === 'FfmpegError' ? error.message : 'Publishing failed.');
         log.error(`Publishing ${id} failed: ${error.message}${error.tail ? `\n${error.tail}` : ''}`);

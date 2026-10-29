@@ -9,8 +9,8 @@
 // tracks by album (Encore gives every set its own album) and, for each set:
 //   - waits until no track of it has arrived for a while, so Drive has brought them all;
 //   - makes a playlist named after the album inside "Livesets", the newest set on top;
-//   - puts the tracks in track-number order, and puts them in order again if the set changed
-//     (Encore published it again);
+//   - puts the tracks in track-number order (Encore's whole set in one file, track 0, first), and
+//     puts them in order again if the set changed (Encore published it again);
 //   - gives the playlist the set's cover once: the square Encore puts on its tracks, taken from the
 //     same YouTube thumbnail (Encore's file names end in the video's id).
 // It never deletes anything: a set removed in Encore leaves its playlist, with its tracks greyed out.

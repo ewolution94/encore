@@ -8,8 +8,14 @@ import vm from 'node:vm';
 // them). It can't prove the real app accepts these calls; it proves what the extension asks for.
 const source = readFileSync(new URL('../spicetify/encore-livesets.js', import.meta.url), 'utf8');
 
-function spotify() {
-  const state = { now: 1_000_000_000, local: [], root: [], playlists: new Map(), notes: [], seq: 0 };
+// YouTube's thumbnails as the stand-in knows them: video id → the sizes it has.
+const THUMBS = {
+  'ODi-o47ywEs': { maxresdefault: [1280, 720], hqdefault: [480, 360] },
+  AbCdEfGhIjK: { hqdefault: [480, 360] },
+};
+
+function spotify({ storage = new Map() } = {}) {
+  const state = { now: 1_000_000_000, local: [], root: [], playlists: new Map(), notes: [], seq: 0, fetched: [], draws: [], uploads: [], covers: new Map(), failUploads: 0 };
   const findFolder = (uri) => state.root.find((i) => i.uri === uri);
   const Platform = {
     LocalFilesAPI: { getTracks: async () => state.local.map((t) => ({ ...t })) },
@@ -45,15 +51,46 @@ function spotify() {
         const gone = new Set(items.map((i) => i.uid));
         state.playlists.set(uri, state.playlists.get(uri).filter((i) => !gone.has(i.uid)));
       },
+      uploadImage: async (file) => {
+        if (state.failUploads > 0 && state.failUploads--) throw new Error('upload refused');
+        state.uploads.push({ name: file.name, type: file.type, quality: file.parts[0].quality });
+        return `token${++state.seq}`;
+      },
+      updateDetails: async (uri, { imageUploadToken }) => {
+        state.covers.set(uri, imageUploadToken);
+      },
     },
   };
+  class OffscreenCanvas {
+    getContext() {
+      return { drawImage: (_image, ...box) => state.draws.push(box) };
+    }
+    // Only from quality 0.8 down is the JPEG small enough.
+    async convertToBlob({ type, quality }) {
+      return { type, quality, size: quality > 0.8 ? 300_000 : 120_000 };
+    }
+  }
   const context = {
     Spicetify: { Platform, showNotification: (text) => state.notes.push(text) },
     EncoreLivesetsClock: () => state.now,
+    fetch: async (url) => {
+      state.fetched.push(url);
+      const [, id, name] = /\/vi\/([\w-]+)\/(\w+)\.jpg$/.exec(url);
+      const size = THUMBS[id]?.[name];
+      return { ok: Boolean(size), blob: async () => ({ width: size[0], height: size[1] }) };
+    },
+    createImageBitmap: async (blob) => blob,
+    OffscreenCanvas,
+    File: class {
+      constructor(parts, name, { type }) {
+        Object.assign(this, { parts, name, type });
+      }
+    },
+    localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
     // No timers: each test runs its passes itself.
     setTimeout: () => 0,
     setInterval: () => 0,
-    console: { log() {}, error: console.error },
+    console: { log() {}, warn() {}, error: console.error },
     Date,
     Map,
     Set,
@@ -65,10 +102,11 @@ function spotify() {
   return { state, sync: async () => JSON.parse(JSON.stringify(await context.EncoreLivesets.sync())) };
 }
 
-const track = (album, n, title, addedAt) => ({
+// Spotify gives a local track's picture as its file's path; Encore's file names end in the video id.
+const track = (album, n, title, addedAt, id = 'ODi-o47ywEs') => ({
   uri: `spotify:local:Artist:${encodeURIComponent(album)}:${encodeURIComponent(title)}:${100 + n}`,
   name: title,
-  album: { name: album },
+  album: { name: album, images: [{ url: `spotify:localfileimage:${encodeURIComponent(`C:\\Users\\Eric\\Music\\Encore\\${album} - ${String(n).padStart(2, '0')} - Artist - ${title} [${id}].mp3`)}` }] },
   trackNumber: n,
   discNumber: 1,
   addedAt: new Date(addedAt),
@@ -98,7 +136,7 @@ test('each settled set becomes a playlist in Livesets, in track order, the newes
   assert.deepEqual(state.notes, ['Encore: “RIOT @ EDC 2026” is in Livesets', 'Encore: “DABIN @ EDC 2026” is in Livesets']);
 
   const again = await sync();
-  assert.deepEqual([again.created, again.updated], [[], []], 'a second pass changes nothing');
+  assert.deepEqual([again.created, again.updated, again.covered], [[], [], []], 'a second pass changes nothing');
   assert.equal(state.root.filter((i) => i.type === 'folder').length, 1, 'one folder');
 });
 
@@ -132,7 +170,7 @@ test('a set published again (a renamed track, one more) is put in order again in
 
 test('an existing Livesets folder is used, and nothing happens without local files', async () => {
   const { state, sync } = spotify();
-  assert.deepEqual(await sync(), { created: [], updated: [], waiting: [] });
+  assert.deepEqual(await sync(), { created: [], updated: [], covered: [], waiting: [] });
   assert.equal(state.root.length, 0, 'no folder made for nothing');
 
   state.root.push({ type: 'folder', name: 'Livesets', uri: 'spotify:user:me:folder:old', items: [] });
@@ -141,4 +179,66 @@ test('an existing Livesets folder is used, and nothing happens without local fil
   assert.equal(state.root.length, 1);
   assert.equal(folderOf(state).uri, 'spotify:user:me:folder:old');
   assert.equal(folderOf(state).items.length, 1);
+});
+
+test('each playlist gets its set’s cover once: a square from the middle of the largest thumbnail YouTube has', async () => {
+  const storage = new Map();
+  const { state, sync } = spotify({ storage });
+  const old = state.now - 10 * 60_000;
+  state.local = [track('RIOT @ EDC 2026', 1, 'Do or Die', old), track('DABIN @ EDC 2026', 1, 'Intro', old + 1, 'AbCdEfGhIjK')];
+  const done = await sync();
+  assert.deepEqual(done.covered, ['RIOT @ EDC 2026', 'DABIN @ EDC 2026']);
+  assert.deepEqual(state.fetched, [
+    'https://i.ytimg.com/vi/ODi-o47ywEs/maxresdefault.jpg',
+    'https://i.ytimg.com/vi/AbCdEfGhIjK/maxresdefault.jpg',
+    'https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg',
+  ]);
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(state.draws)),
+    [
+      [280, 0, 720, 720, 0, 0, 640, 640],
+      [105, 45, 270, 270, 0, 0, 640, 640],
+    ],
+    'the 16:9 picture’s middle, without the 4:3 thumbnail’s bars',
+  );
+  assert.deepEqual(state.uploads, [
+    { name: 'cover.jpg', type: 'image/jpeg', quality: 0.8 },
+    { name: 'cover.jpg', type: 'image/jpeg', quality: 0.8 },
+  ], 'the first JPEG under 256 KB');
+  assert.deepEqual([...state.covers.keys()].sort(), folderOf(state).items.map((i) => i.uri).sort(), 'both playlists took their upload');
+
+  await sync();
+  assert.equal(state.uploads.length, 2, 'not again on the next pass');
+  // Nor after Spotify restarts: this PC remembers.
+  const restarted = spotify({ storage });
+  restarted.state.root = state.root;
+  restarted.state.playlists = state.playlists;
+  restarted.state.local = state.local;
+  await restarted.sync();
+  assert.equal(restarted.state.uploads.length, 0);
+});
+
+test('a playlist made before covers gets one, and a failed cover is tried again without holding up the others', async () => {
+  const { state, sync } = spotify();
+  const old = state.now - 10 * 60_000;
+  state.root.push({ type: 'folder', name: 'Livesets', uri: 'spotify:user:me:folder:old', items: [{ type: 'playlist', name: 'RIOT @ EDC 2026', uri: 'spotify:playlist:riot' }] });
+  state.playlists.set('spotify:playlist:riot', [{ uri: track('RIOT @ EDC 2026', 1, 'Do or Die', old).uri, uid: 'u1' }]);
+  state.local = [track('RIOT @ EDC 2026', 1, 'Do or Die', old), track('New', 1, 'Intro', old + 1)];
+  state.failUploads = 1;
+  const first = await sync();
+  assert.deepEqual([first.created, first.covered], [['New'], ['New']], 'RIOT’s upload failed, the oldest set’s first; New went ahead');
+  assert.equal(state.covers.has('spotify:playlist:riot'), false);
+  assert.deepEqual(titles(state, folderOf(state).items[0].uri), ['Intro']);
+  const second = await sync();
+  assert.deepEqual(second.covered, ['RIOT @ EDC 2026'], 'tried again on the next pass');
+  assert.equal(state.covers.size, 2);
+});
+
+test('a set whose files aren’t Encore’s gets no cover and costs no download', async () => {
+  const { state, sync } = spotify();
+  const mine = { ...track('My mix', 1, 'Intro', state.now - 10 * 60_000), album: { name: 'My mix', images: [] } };
+  state.local = [mine];
+  const done = await sync();
+  assert.deepEqual([done.created, done.covered], [['My mix'], []]);
+  assert.deepEqual(state.fetched, []);
 });

@@ -65,6 +65,8 @@ test('scan, publish, publish again and remove, against a real ffmpeg', { skip: !
     path.join(staging, `${id}.info.json`),
     JSON.stringify({ id, title: 'TEST DJ @ Somewhere 2026 (Full Set)', channel: 'Test DJ', duration: 45, description: '0:00 Intro\n0:15 Artist One - First\n0:30 Artist Two - Second' }),
   );
+  // Its thumbnail as YouTube's smaller ones come: 4:3, the 16:9 picture between black bars.
+  execFileSync(FFMPEG, ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'testsrc2=s=480x270:d=1', '-vf', 'pad=480:360:0:45', '-frames:v', '1', path.join(staging, `${id}-thumb.jpg`)]);
   writeFileSync(path.join(staging, `${id}.part.webm.part`), '');
   const sent = [];
   const encore = createEncore({ stagingDir: staging, libraryDir: library, dataDir: path.join(root, 'data'), ffmpeg: FFMPEG, telegram: { enabled: true, notify: async (s) => sent.push(...s) }, log: quiet });
@@ -104,6 +106,14 @@ test('scan, publish, publish again and remove, against a real ffmpeg', { skip: !
   assert.deepEqual(
     { title: second.tags.title, artist: second.tags.artist, album: second.tags.album, albumArtist: second.tags.album_artist, track: second.tags.track },
     { title: 'First', artist: 'Artist One', album: 'TEST DJ @ Somewhere 2026', albumArtist: 'Test DJ', track: '2/3' },
+  );
+  const covers = files.map((f) =>
+    JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height:stream_disposition=attached_pic', '-of', 'json', path.join(library, f)])).streams,
+  );
+  assert.deepEqual(
+    covers.map((s) => s.map((v) => [v.width, v.height, v.disposition.attached_pic])),
+    [[[720, 720, 1]], [[720, 720, 1]], [[720, 720, 1]]],
+    'every track carries the square cover, the ones after a cut too',
   );
   const lengths = files.map((f) => Number(probe(f).duration));
   assert.ok(Math.abs(lengths[0] - 13) < 0.1, `the first track runs from the trim: ${lengths[0]}`);

@@ -111,6 +111,7 @@ export function createEncore({ stagingDir, libraryDir, dataDir, ffmpeg = 'ffmpeg
         const files = await publishSet({
           id,
           audio: download.audio,
+          thumb: download.thumb,
           duration: set.duration,
           draft,
           libraryDir,

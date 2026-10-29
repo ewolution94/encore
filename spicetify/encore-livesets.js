@@ -10,7 +10,9 @@
 //   - waits until no track of it has arrived for a while, so Drive has brought them all;
 //   - makes a playlist named after the album inside "Livesets", the newest set on top;
 //   - puts the tracks in track-number order, and puts them in order again if the set changed
-//     (Encore published it again).
+//     (Encore published it again);
+//   - gives the playlist the set's cover once: the square Encore puts on its tracks, taken from the
+//     same YouTube thumbnail (Encore's file names end in the video's id).
 // It never deletes anything: a set removed in Encore leaves its playlist, with its tracks greyed out.
 //
 // Install (Windows, PowerShell), once Spicetify is installed:
@@ -25,6 +27,9 @@
   const SETTLED_MS = 90_000;
   const EVERY_MS = 3 * 60_000;
   const TAG = '[Encore Livesets]';
+  // Playlists that got their cover, kept on this PC, so a cover is uploaded once and one changed by
+  // hand stays.
+  const COVERED = 'encore-livesets:covered';
 
   const platform = globalThis.Spicetify?.Platform;
   if (!platform?.LocalFilesAPI || !platform.RootlistAPI || !platform.PlaylistAPI) {
@@ -65,12 +70,78 @@
     return result.items ?? [];
   }
 
+  const covered = new Set(
+    (() => {
+      try {
+        return JSON.parse(globalThis.localStorage?.getItem(COVERED) ?? '[]');
+      } catch {
+        return [];
+      }
+    })(),
+  );
+  function remember(uri) {
+    covered.add(uri);
+    try {
+      globalThis.localStorage?.setItem(COVERED, JSON.stringify([...covered]));
+    } catch {
+      // Remembered until Spotify restarts; then the cover goes up once more.
+    }
+  }
+
+  /** The set's YouTube id, from a track's file path (Spotify gives it as the track's picture). */
+  function videoIdOf(set) {
+    for (const track of set.tracks) {
+      const url = track.album?.images?.[0]?.url ?? '';
+      let file = url;
+      try {
+        file = decodeURIComponent(url);
+      } catch {
+        // Not encoded after all.
+      }
+      const match = /\[([\w-]{11})\]\.mp3$/i.exec(file);
+      if (match) return match[1];
+    }
+    return null;
+  }
+
+  /** The cover as Encore cuts it: a 640 px square from the middle of the picture, a JPEG Spotify
+   *  takes (under 256 KB). YouTube's smaller thumbnails are 4:3 with the 16:9 picture between bars,
+   *  hence the square as high as the picture rather than the image. Null when YouTube has none. */
+  async function coverOf(id) {
+    for (const name of ['maxresdefault', 'hqdefault']) {
+      const response = await fetch(`https://i.ytimg.com/vi/${id}/${name}.jpg`);
+      if (!response.ok) continue;
+      const image = await createImageBitmap(await response.blob());
+      const side = Math.min(image.height, (image.width * 9) / 16);
+      const canvas = new OffscreenCanvas(640, 640);
+      canvas.getContext('2d').drawImage(image, (image.width - side) / 2, (image.height - side) / 2, side, side, 0, 0, 640, 640);
+      for (const quality of [0.9, 0.8, 0.65, 0.5]) {
+        const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality });
+        if (blob.size <= 250_000) return blob;
+      }
+    }
+    return null;
+  }
+
+  /** Puts the set's cover on its playlist; true once it's on. */
+  async function putCover(uri, set) {
+    const id = videoIdOf(set);
+    if (!id || typeof PlaylistAPI.uploadImage !== 'function') return false;
+    const cover = await coverOf(id);
+    if (!cover) return false;
+    const token = await PlaylistAPI.uploadImage(new File([cover], 'cover.jpg', { type: 'image/jpeg' }));
+    if (!token) return false;
+    await PlaylistAPI.updateDetails(uri, { imageUploadToken: token });
+    if (typeof PlaylistAPI.resync === 'function') await PlaylistAPI.resync(uri);
+    return true;
+  }
+
   let running = null;
 
   /** One pass; a call while one runs joins it. Resolves to what it did, for the log and the tests. */
   function sync() {
     running ??= (async () => {
-      const done = { created: [], updated: [], waiting: [] };
+      const done = { created: [], updated: [], covered: [], waiting: [] };
       const sets = setsOf(await LocalFilesAPI.getTracks());
       if (!sets.length) return done;
       const home = await folder();
@@ -82,27 +153,39 @@
           done.waiting.push(set.name);
           continue;
         }
-        const existing = playlists.get(set.name);
-        if (!existing) {
-          const uri = await RootlistAPI.createPlaylist(set.name, { before: 'start' });
+        let uri = playlists.get(set.name);
+        if (!uri) {
+          uri = await RootlistAPI.createPlaylist(set.name, { before: 'start' });
           await RootlistAPI.move([{ uri }], { after: { uri: home.uri } });
           await PlaylistAPI.add(uri, set.uris, { after: 'end' });
           playlists.set(set.name, uri);
           done.created.push(set.name);
-          continue;
+        } else {
+          const items = await contents(uri);
+          const same = items.length === set.uris.length && items.every((item, i) => item.uri === set.uris[i]);
+          if (!same) {
+            if (items.length) await PlaylistAPI.remove(uri, items.map(({ uri: track, uid }) => ({ uri: track, uid })));
+            await PlaylistAPI.add(uri, set.uris, { after: 'end' });
+            done.updated.push(set.name);
+          }
         }
-        const items = await contents(existing);
-        const same = items.length === set.uris.length && items.every((item, i) => item.uri === set.uris[i]);
-        if (same) continue;
-        if (items.length) await PlaylistAPI.remove(existing, items.map(({ uri, uid }) => ({ uri, uid })));
-        await PlaylistAPI.add(existing, set.uris, { after: 'end' });
-        done.updated.push(set.name);
+        // The cover is a nicety: when it fails, the playlist is still there and the next pass tries again.
+        if (!covered.has(uri)) {
+          try {
+            if (await putCover(uri, set)) {
+              remember(uri);
+              done.covered.push(set.name);
+            }
+          } catch (error) {
+            console.warn(TAG, `no cover for “${set.name}” yet`, error);
+          }
+        }
       }
       return done;
     })()
       .then((done) => {
         for (const name of done.created) globalThis.Spicetify.showNotification?.(`Encore: “${name}” is in Livesets`);
-        if (done.created.length || done.updated.length) console.log(TAG, done);
+        if (done.created.length || done.updated.length || done.covered.length) console.log(TAG, done);
         return done;
       })
       .catch((error) => {

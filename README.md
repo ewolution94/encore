@@ -32,6 +32,10 @@ YouTube playlist ──► Pinchflat (NAS) ──► staging: <id>.opus, <id>.in
   and the last no `-to`, or the encoder's priming frame and the last frame get lost.
 - **Tags.** Title and artist per track (the list's artist, else the set's DJ), the set as the album
   (unique per set, so Spotify keeps it together), the DJ as album artist, `n/total`. ID3v2.3.
+- **Cover.** A 720 px square from the middle of Pinchflat's thumbnail (as high as the 16:9 picture,
+  so a 4:3 thumbnail's bars stay out), on every track. Its one frame gets `-itsoffset` of the cut's
+  start, or the output `-ss` drops it from every track after the first; the audio stays byte for byte
+  the same. No thumbnail, or a failed one: the tracks go out without a cover.
 - **Files.** Written beside the library under a dot-name and renamed into place, so Drive and Spotify
   never see half a file. Publishing again replaces the set's files; Remove deletes them. The video id
   in every name marks Encore's files.
@@ -102,7 +106,9 @@ from `spicetify/encore-livesets.js`, a [Spicetify](https://spicetify.app) extens
 app on the PC. It reads Local Files every few minutes, and for each set (one album each) that has
 stopped arriving from Drive it makes a playlist named after the set in a "Livesets" folder, the
 newest on top, with the tracks in track order; a set published again gets its playlist put in order
-again. It deletes nothing. Spicetify is unofficial: it patches the Spotify app, and a Spotify update
+again. Each playlist gets the set's cover once (the same square Encore puts on every track, cut from
+the video's YouTube thumbnail; the video id comes from the file names), and one changed by hand stays.
+It deletes nothing. Spicetify is unofficial: it patches the Spotify app, and a Spotify update
 can need `spicetify backup apply` until Spicetify catches up.
 
 Install on the PC (PowerShell, Spotify from spotify.com rather than the Microsoft Store; open a new
@@ -117,6 +123,8 @@ iwr https://raw.githubusercontent.com/ewolution94/encore/release/spicetify/encor
 spicetify config extensions encore-livesets.js
 spicetify apply
 ```
+
+To update it later, run the `iwr … encore-livesets.js` line again, then `spicetify apply`.
 
 `tests/spicetify.test.mjs` runs the file as it ships against a stand-in for the app's functions.
 

@@ -1,7 +1,8 @@
 // Publishing a set: the trimmed set encoded once (MP3, CBR 320, no bit reservoir), then cut into
 // its tracks at frame boundaries without encoding again, so nothing pads the joins and Spotify plays
-// them through (plans/encore.md, Phase 0's gap tests). The tracks are tagged, then moved into the
-// library each under a temporary dot-name first, so Drive and Spotify never see half a file.
+// them through (plans/encore.md, Phase 0's gap tests). The tracks are tagged, with the set's cover,
+// then moved into the library each under a temporary dot-name first, so Drive and Spotify never see
+// half a file.
 
 import { copyFile, mkdir, rename, rm, unlink } from 'node:fs/promises';
 import path from 'node:path';
@@ -47,14 +48,14 @@ export function trackTags(id, draft) {
 
 /**
  * @param {{
- *   id: string, audio: string, duration: number, draft: any,
+ *   id: string, audio: string, thumb?: string | null, duration: number, draft: any,
  *   libraryDir: string, workDir: string, ffmpeg: string,
  *   onProgress?: (phase: 'encoding' | 'cutting' | 'copying', done: number) => void,
  *   signal?: AbortSignal,
  * }} job
  * @returns {Promise<string[]>} the file names written into the library
  */
-export async function publishSet({ id, audio, duration, draft, libraryDir, workDir, ffmpeg, onProgress = () => {}, signal }) {
+export async function publishSet({ id, audio, thumb = null, duration, draft, libraryDir, workDir, ffmpeg, onProgress = () => {}, signal }) {
   const trimIn = draft.trimIn ?? 0;
   const end = draft.trimOut ?? duration;
   const plan = cutPlan(draft.tracks, { duration, trimIn, trimOut: draft.trimOut });
@@ -72,6 +73,21 @@ export async function publishSet({ id, audio, duration, draft, libraryDir, workD
       '-c:a', 'libmp3lame', '-b:a', '320k', '-reservoir', '0', whole,
     ], { onSeconds: (s) => onProgress('encoding', Math.min(1, s / (end - trimIn))), signal });
 
+    // The cover: a square from the middle of Pinchflat's thumbnail. YouTube's smaller thumbnails are
+    // 4:3 with the 16:9 picture between bars, so the square is as high as the picture, not the image.
+    // Without one, or if it fails, the tracks go out without a cover.
+    let cover = null;
+    if (thumb) {
+      cover = path.join(dir, 'cover.jpg');
+      // prettier-ignore
+      await runFfmpeg(ffmpeg, [
+        '-i', thumb, '-vf', "crop='min(ih,iw*9/16)':'min(ih,iw*9/16)',scale=720:720", '-frames:v', '1', '-q:v', '3', cover,
+      ], { timeoutMs: 60_000, signal }).catch((error) => {
+        if (signal?.aborted) throw error;
+        cover = null;
+      });
+    }
+
     const parts = [];
     for (const [i, cut] of plan.entries()) {
       const tag = tags[i];
@@ -81,8 +97,12 @@ export async function publishSet({ id, audio, duration, draft, libraryDir, workD
       // prettier-ignore
       await runFfmpeg(ffmpeg, [
         '-i', whole,
+        // The cover's one frame gets the cut's start as its time, or the -ss drops it with the audio
+        // before the cut (the audio comes out byte for byte the same).
+        ...(cover ? ['-itsoffset', cut.from.toFixed(3), '-i', cover] : []),
         ...(i === 0 ? [] : ['-ss', cut.from.toFixed(3)]),
         ...(cut.to === null ? [] : ['-to', cut.to.toFixed(3)]),
+        ...(cover ? ['-map', '0:a', '-map', '1:v', '-disposition:v:0', 'attached_pic', '-metadata:s:v', 'comment=Cover (front)'] : []),
         '-c', 'copy', '-write_xing', '0', '-map_metadata', '-1', '-id3v2_version', '3',
         '-metadata', `title=${tag.title}`, '-metadata', `artist=${tag.artist}`,
         '-metadata', `album=${draft.album}`, '-metadata', `album_artist=${draft.albumArtist}`,

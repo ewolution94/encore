@@ -334,7 +334,8 @@
     align-content: start;
     gap: var(--ewo-space-5);
     overflow-y: auto;
-    padding: var(--ewo-space-6) var(--ewo-space-7) var(--ewo-space-6);
+    /* --side (App.svelte): past 1920 px the content stays in the frame, the wash runs on to the edge. */
+    padding: var(--ewo-space-6) calc(var(--ewo-space-7) + var(--side, 0px)) var(--ewo-space-6) var(--ewo-space-7);
   }
 
   /* The set's colour washes in from the top, like light on a sleeve. */
@@ -533,7 +534,7 @@
     align-items: center;
     gap: var(--ewo-space-3);
     min-height: 64px;
-    padding: 10px var(--ewo-space-6);
+    padding: 10px calc(var(--ewo-space-6) + var(--side, 0px)) 10px var(--ewo-space-6);
     border-top: 1px solid var(--ewo-line);
     background: var(--ewo-bg);
   }

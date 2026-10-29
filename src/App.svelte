@@ -137,11 +137,15 @@
 <Settings />
 
 <style>
+  /* The working area stops at 1920 px and stays in the middle (the user's ultrawide, 2026-10-29); only
+     grounds and rules run on to the edges: the bar, the list's ground on the left, the set's wash and
+     the action bar on the right. --side is that extra, on each side, and 0 up to 1920 px. */
   .app {
     --bar: 52px;
     --list: 360px;
+    --side: max(0px, (100vw - 1920px) / 2);
     display: grid;
-    grid-template-columns: var(--list) minmax(0, 1fr);
+    grid-template-columns: calc(var(--side) + var(--list)) minmax(0, 1fr);
     grid-template-rows: var(--bar) minmax(0, 1fr);
     height: 100dvh;
   }
@@ -151,7 +155,7 @@
     display: flex;
     align-items: center;
     gap: var(--ewo-space-3);
-    padding: 0 var(--ewo-space-3) 0 var(--ewo-space-4);
+    padding: 0 calc(var(--side) + var(--ewo-space-3)) 0 calc(var(--side) + var(--ewo-space-4));
     border-bottom: 1px solid var(--ewo-line);
     background: var(--ewo-bg);
   }
@@ -195,6 +199,7 @@
   .list-pane {
     min-height: 0;
     overflow-y: auto;
+    padding-left: var(--side);
     border-right: 1px solid var(--ewo-line);
     background: var(--ewo-bg-sunk);
   }

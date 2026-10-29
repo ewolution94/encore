@@ -6,6 +6,7 @@
   import { api, ApiError, type Draft, type SetDetail, type SetSummary, type Source } from '../lib/api.ts';
   import { locale, t, tn } from '../lib/i18n/index.svelte.ts';
   import { issueText } from '../lib/issues.ts';
+  import { from1001Tracklists } from '../lib/bookmarklet.ts';
   import SetStrip from './SetStrip.svelte';
   import TimeField from './TimeField.svelte';
   import TrackRows from './TrackRows.svelte';
@@ -264,6 +265,11 @@
         {/if}
         {#if pasteOpen}
           <div class="paste">
+            <p class="hint">
+              {t('set.paste1001')}
+              <!-- Dragged to the bookmarks bar, not clicked here: it runs on 1001Tracklists' page. -->
+              <a class="bookmarklet" href={from1001Tracklists} title={t('set.paste1001Title')} onclick={(e) => e.preventDefault()}>{t('set.paste1001Link')}</a>
+            </p>
             <textarea class="field mono" rows="7" bind:value={pasteText} placeholder={t('set.pastePlaceholder')} aria-label={t('set.pasteLabel')}></textarea>
             <div class="paste-row">
               {#if pasteError}<p class="error">{pasteError}</p>{/if}
@@ -493,6 +499,22 @@
   textarea {
     resize: vertical;
     line-height: 1.45;
+  }
+
+  .paste .hint {
+    margin-top: 0;
+  }
+
+  .bookmarklet {
+    display: inline-block;
+    padding: 1px 10px;
+    border: 1px dashed var(--tint);
+    border-radius: 999px;
+    color: var(--ewo-fg);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: grab;
   }
 
   .paste-row {

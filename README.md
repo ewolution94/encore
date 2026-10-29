@@ -47,6 +47,15 @@ YouTube playlist ──► Pinchflat (NAS) ──► staging: <id>.opus, <id>.in
   real lists come in: `0:00 Artist - Title`, `[00:57] …`, `0:00 - Artist - Title`, `1:02:03`,
   numbering, times at the end, ranges, mashups ("A - X vs B - Y" keeps the rest in the title). Tests
   run on real descriptions and comments (`tests/fixtures/info`).
+- **Lists from 1001Tracklists** come through a bookmarklet (`bookmarklet/from-1001tracklists.js`):
+  the paste box offers it as a link to drag to the bookmarks bar ("1001TL → Encore"). Clicked on a
+  tracklist page, it reads the page that's open (nothing is fetched or sent), copies one line per
+  timed track in the paste box's shape and shows them in a panel: 1001Tracklists' own "Artist -
+  Title (Remix)" without the label, "w/" tracks after "w/" in the title (a switch leaves them out),
+  a mashup's parts left out (they're in its name), tracks without a time named apart. It reads the
+  rows' hidden `…_cue_seconds` field and `itemprop="name"`; `tests/bookmarklet.test.mjs` runs it on
+  a real page (`tests/fixtures/1001tracklists.html`, from the Internet Archive: 1001Tracklists
+  shows a CAPTCHA to automated browsers). If the site changes and it finds nothing, save a new page.
 - **State** is one SQLite file (`node:sqlite`): each set's draft, what was last published, its files.
   The audio and the info JSON stay Pinchflat's.
 
@@ -142,5 +151,6 @@ scripts/     fixtures.mjs builds .dev/staging for the dev server
 tests/       node --test; real tracklists in tests/fixtures/info
 deploy/      the Portainer stack
 spicetify/   the extension that files each set as a playlist in Spotify on the PC
+bookmarklet/ 1001Tracklists → Encore: a tracklist page's list in the paste box's shape
 brand/       the icon (development/plans/app-icons, the Field set)
 ```

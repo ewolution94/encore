@@ -133,7 +133,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         try {
-          const response = await fetch(request.url, { cache: 'no-store', credentials: 'same-origin' });
+          // The request itself (mode navigate), so an expired session's redirect to Access's login
+          // is followed by the browser; a fetch of its URL fails on that cross-site redirect and
+          // opens the cached shell, with no way to sign in. No `no-store` needed: the document is
+          // `no-cache`, which Cloudflare leaves alone on HTML, so the HTTP cache revalidates it.
+          const response = await fetch(request);
           if (storable(response)) {
             const copy = response.clone();
             void caches.open(SHELL).then((cache) => cache.put(SHELL_URL, copy));

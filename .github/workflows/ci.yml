@@ -75,5 +75,26 @@ jobs:
           # The Census forwarder is wired in; without ENCORE_CENSUS it answers locally.
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7399/_e.js)" = 200
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST --data '{}' http://127.0.0.1:7399/_e)" = 204
+          # Without Dashboard: its values block in the page with the built-in ones, and the manifest.
+          curl -sf http://127.0.0.1:7399/ | grep -q '<script type="application/json" id="ewo-config">{"lang":"system","theme":"system"}</script>'
+          curl -sf http://127.0.0.1:7399/sets/AbCdEfGhIjK | grep -q 'id="ewo-config"'
+          curl -sf http://127.0.0.1:7399/ewo.config.json | grep -q '"app": "encore"'
           kill $server
           wait $server || true
+
+      # The server against a stand-in for Dashboard's apps' port: it takes the manifest, and the
+      # family's dark theme reaches the page.
+      - name: Smoke test Dashboard's values
+        run: |
+          node --input-type=module -e "
+            import http from 'node:http';
+            http.createServer((req, res) => {
+              if (req.method === 'PUT' && req.url === '/v1/manifest/encore') { req.resume(); return res.writeHead(204).end(); }
+              if (req.url === '/v1/config/encore') return res.writeHead(200, { 'content-type': 'application/json', etag: '\"1\"' }).end(JSON.stringify({ family: { theme: 'dark', lang: 'en' }, app: {} }));
+              res.writeHead(404).end();
+            }).listen(7397);
+          " &
+          DASHBOARD_URL=http://127.0.0.1:7397 PORT=7396 ENCORE_OPEN=1 ENCORE_STAGING=/tmp/encore/staging ENCORE_LIBRARY=/tmp/encore/library ENCORE_DATA=/tmp/encore/data-dashboard node server/server.mjs &
+          for _ in $(seq 1 20); do curl -sf http://127.0.0.1:7396/healthz && break; sleep 0.5; done
+          for _ in $(seq 1 20); do curl -sf http://127.0.0.1:7396/ | grep -q '"theme":"dark"' && break; sleep 0.5; done
+          curl -sf http://127.0.0.1:7396/ | grep -q '{"lang":"en","theme":"dark"}'

@@ -5,14 +5,14 @@ var a = {
 	en: {
 		language: "Language",
 		theme: "Theme",
-		system: "System",
+		system: "Default",
 		light: "Light",
 		dark: "Dark"
 	},
 	de: {
 		language: "Sprache",
 		theme: "Design",
-		system: "System",
+		system: "Standard",
 		light: "Hell",
 		dark: "Dunkel"
 	}

@@ -38,6 +38,7 @@ services:
       - ENCORE_TG_CHAT_ID=${ENCORE_TG_CHAT_ID:-}
       # Visit counts: /_e and /_e.js are forwarded to Census over the `ewolution` network.
       - ENCORE_CENSUS=http://census:4901
+      - DASHBOARD_URL=http://dashboard:8081
     volumes:
       - encore-data:/data
       # Pinchflat's downloads, read only.

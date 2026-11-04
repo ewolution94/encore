@@ -1,8 +1,17 @@
-// Applies the saved theme before first paint so there's no flash of the wrong one, and pins
-// theme-color to it, which colours an installed app's status bar. Mirrors
-// src/lib/theme.svelte.ts; keep the two in step.
+// Applies the theme before first paint so there's no flash of the wrong one, and pins theme-color
+// to it, which colours an installed app's status bar: the one saved on this device, else
+// Dashboard's default (#ewo-config, which the server puts first in <head>), else the system's.
+// Mirrors src/lib/theme.svelte.ts and src/lib/defaults.ts; keep them in step.
+var ewoConfig = {};
 try {
-  var theme = localStorage.getItem('encore:theme');
+  ewoConfig = JSON.parse(document.getElementById('ewo-config').textContent) || {};
+} catch (e) {}
+try {
+  var theme;
+  try {
+    theme = localStorage.getItem('encore:theme');
+  } catch (e) {}
+  if (theme !== 'light' && theme !== 'dark') theme = ewoConfig.theme;
   if (theme === 'light' || theme === 'dark') {
     document.documentElement.dataset.theme = theme;
     var metas = document.querySelectorAll('meta[name="theme-color"]');

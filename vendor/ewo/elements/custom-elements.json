@@ -104,6 +104,211 @@
     },
     {
       "kind": "javascript-module",
+      "path": "button.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A pill button, a link that looks like one (`href`), or a round icon button (`icon`).",
+          "name": "EwoButton",
+          "cssParts": [
+            {
+              "description": "The inner <button> or <a>.",
+              "name": "control"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The label (or the icon, with `icon`).",
+              "name": ""
+            },
+            {
+              "description": "An icon before the label.",
+              "name": "start"
+            },
+            {
+              "description": "An icon after the label (an arrow, a count).",
+              "name": "end"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLButtonElement | HTMLAnchorElement | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "variant"
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "icon"
+            },
+            {
+              "kind": "field",
+              "name": "stretch"
+            },
+            {
+              "kind": "field",
+              "name": "type",
+              "type": {
+                "text": "'button' | 'submit' | 'reset'"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "href"
+            },
+            {
+              "kind": "field",
+              "name": "label"
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "formDisabledCallback",
+              "parameters": [
+                {
+                  "name": "disabled",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "href",
+              "type": {
+                "text": "string"
+              },
+              "description": "Makes it a link."
+            },
+            {
+              "name": "target",
+              "type": {
+                "text": "string"
+              },
+              "description": "The link's target; `_blank` adds rel=\"noopener\"."
+            },
+            {
+              "name": "download",
+              "type": {
+                "text": "string"
+              },
+              "description": "Download the link instead of opening it."
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "The accessible name, for an icon button (or to say more than the text)."
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "type": {
+                "text": "'default' | 'primary' | 'quiet' | 'danger'"
+              },
+              "description": "`primary` is the one main action; `quiet` has no line until hovered.",
+              "name": "variant"
+            },
+            {
+              "type": {
+                "text": "'sm' | 'md' | 'lg'"
+              },
+              "description": "28, 34 or 44 px tall.",
+              "name": "size"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Round, as wide as it is tall, for a single icon. Give it a `label`.",
+              "name": "icon"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Fill the container's width.",
+              "name": "stretch"
+            },
+            {
+              "type": {
+                "text": "'button' | 'submit' | 'reset'"
+              },
+              "description": "What it does in a form (default `button`).",
+              "name": "type"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoButton",
+          "declaration": {
+            "name": "EwoButton",
+            "module": "button.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "connection.js",
       "declarations": [
         {
@@ -816,6 +1021,366 @@
           "declaration": {
             "name": "EwoEmpty",
             "module": "empty.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "field.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A labelled text field, single line or `multiline`.",
+          "name": "EwoField",
+          "cssParts": [
+            {
+              "name": "label"
+            },
+            {
+              "description": "The field's outline.",
+              "name": "box"
+            },
+            {
+              "description": "The inner <input> or <textarea>.",
+              "name": "control"
+            },
+            {
+              "name": "hint"
+            },
+            {
+              "name": "error"
+            }
+          ],
+          "slots": [
+            {
+              "description": "An icon inside the field, before the text.",
+              "name": "start"
+            },
+            {
+              "description": "Something inside the field after the text (a unit, a small button).",
+              "name": "end"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "#internals",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#id",
+              "privacy": "private",
+              "default": "`ewo-field-${++uid}`"
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLInputElement | HTMLTextAreaElement | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#committed",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "#dirty",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#value",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "required"
+            },
+            {
+              "kind": "field",
+              "name": "readonly"
+            },
+            {
+              "kind": "field",
+              "name": "multiline"
+            },
+            {
+              "kind": "field",
+              "name": "counter"
+            },
+            {
+              "kind": "field",
+              "name": "nolabel"
+            },
+            {
+              "kind": "field",
+              "name": "error"
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity"
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity"
+            },
+            {
+              "kind": "method",
+              "name": "select",
+              "description": "Selects the whole text."
+            },
+            {
+              "kind": "method",
+              "name": "formResetCallback"
+            },
+            {
+              "kind": "method",
+              "name": "formDisabledCallback",
+              "parameters": [
+                {
+                  "name": "disabled",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#render",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#commit",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#grow",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "default": "` <div class=\"top\"><label part=\"label\" for=\"${this.#id}\"></label><span class=\"count\" aria-hidden=\"true\"></span></div> <div class=\"box\" part=\"box\"><slot name=\"start\"></slot><slot name=\"end\"></slot></div> <p class=\"hint\" part=\"hint\" id=\"${this.#id}-hint\"></p> <p class=\"error\" part=\"error\" id=\"${this.#id}-error\" role=\"alert\"></p>`"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { value }` on every keystroke.",
+              "name": "input"
+            },
+            {
+              "description": "`detail: { value }` on Enter or when the field is left with a new value.",
+              "name": "change"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Names the field. Always give one; `nolabel` hides it from sight only."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "The text."
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "description": "A quieter line under the field."
+            },
+            {
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "description": "Shown under the field in red, and marks it invalid."
+            },
+            {
+              "name": "type",
+              "type": {
+                "text": "'text' | 'search' | 'url' | 'email' | 'number' | 'tel'"
+              },
+              "description": "For a single line (default `text`)."
+            },
+            {
+              "name": "multiline",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "A <textarea>."
+            },
+            {
+              "name": "rows",
+              "type": {
+                "text": "number"
+              },
+              "description": "The textarea's height in lines."
+            },
+            {
+              "name": "maxlength",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "counter",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Shows \"used / maxlength\" beside the label."
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "Form field name."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "inputmode",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The label is read out but not shown (a card header already names the field).",
+              "name": "nolabel"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The textarea grows with its text instead of scrolling.",
+              "name": "autogrow"
+            },
+            {
+              "type": {
+                "text": "'sm' | 'md'"
+              },
+              "description": "32 or 38 px tall.",
+              "name": "size"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-field",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoField",
+          "declaration": {
+            "name": "EwoField",
+            "module": "field.js"
           }
         }
       ]
@@ -1543,6 +2108,356 @@
     },
     {
       "kind": "javascript-module",
+      "path": "reorder.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A list you reorder by dragging a grip, with the keyboard, or with up and down buttons.",
+          "name": "EwoReorder",
+          "cssProperties": [
+            {
+              "description": "A row's padding (default `6px 12px 6px 6px`).",
+              "name": "--ewo-reorder-pad"
+            },
+            {
+              "description": "A row's background (default transparent).",
+              "name": "--ewo-reorder-bg"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "list"
+            },
+            {
+              "description": "The element's row around each child.",
+              "name": "row"
+            },
+            {
+              "name": "grip"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The rows, one child each, with `data-key` (and `data-label` for its name, if its text isn't one).",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#list",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.list')!"
+            },
+            {
+              "kind": "field",
+              "name": "#live",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.live')!"
+            },
+            {
+              "kind": "field",
+              "name": "#rows",
+              "privacy": "private",
+              "default": "new Map<Element, Row>()"
+            },
+            {
+              "kind": "field",
+              "name": "#order",
+              "privacy": "private",
+              "type": {
+                "text": "Row[]"
+              },
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "#drag",
+              "privacy": "private",
+              "type": {
+                "text": "Drag | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#refocus",
+              "privacy": "private",
+              "type": {
+                "text": "{ key: string; part: 'grip' | 'up' | 'down' } | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "default": "new MutationObserver(() => this.#build())"
+            },
+            {
+              "kind": "field",
+              "name": "#unlisten",
+              "privacy": "private",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#settling",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "arrows"
+            },
+            {
+              "kind": "field",
+              "name": "order",
+              "type": {
+                "text": "string[]"
+              },
+              "description": "Every row's key, in the order shown.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#items",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLElement[]"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#key",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "el",
+                  "type": {
+                    "text": "Element"
+                  }
+                },
+                {
+                  "name": "i",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#name",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "el",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#build",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#row",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Row"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#label",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#move",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "from",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "to",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "part",
+                  "type": {
+                    "text": "'grip' | 'up' | 'down'"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#tops",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#start",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "text": "Row"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#scroll",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#end",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "drop",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#settle",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "before",
+                  "type": {
+                    "text": "Map<Row, number>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "type": {
+                "text": "string"
+              },
+              "default": "'<div class=\"list\" part=\"list\" role=\"list\"></div><div class=\"live\" role=\"status\" aria-live=\"polite\"></div><span id=\"help\" hidden></span>'"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { order, key, from, to }` when a row is dropped somewhere new; `order` is every `data-key` in the new order.",
+              "name": "change"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Names the list."
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "No grips or buttons: the order is only shown."
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Up and down buttons on every row (handy on a phone, where a list scrolls under the finger).",
+              "name": "arrows"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-reorder",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoReorder",
+          "declaration": {
+            "name": "EwoReorder",
+            "module": "reorder.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "segmented.js",
       "declarations": [
         {
@@ -1908,7 +2823,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "Overrides \"System\" (both rows)."
+              "description": "Overrides \"Default\" / \"Standard\" (both rows): the value `system`, whatever the family or the device says."
             },
             {
               "name": "light-label",
@@ -3395,6 +4310,125 @@
     },
     {
       "kind": "javascript-module",
+      "path": "table.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A plain <table>, in Folio's hairline style, that scrolls sideways when it's too wide.",
+          "name": "EwoTable",
+          "cssParts": [
+            {
+              "description": "The sideways-scrolling box.",
+              "name": "scroll"
+            }
+          ],
+          "slots": [
+            {
+              "description": "One <table>.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#scroll",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.scroll')!"
+            },
+            {
+              "kind": "field",
+              "name": "#resize",
+              "privacy": "private",
+              "default": "new ResizeObserver(() => this.#sync())"
+            },
+            {
+              "kind": "method",
+              "name": "#observe",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "type": {
+                "text": "string"
+              },
+              "default": "'<div class=\"scroll\" part=\"scroll\"><slot></slot></div>'"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Names the scroll region. The table itself is named by its <caption> or aria-label."
+            },
+            {
+              "type": {
+                "text": "'normal' | 'compact'"
+              },
+              "name": "density"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Keeps every cell on one line; the table scrolls instead.",
+              "name": "nowrap"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The first column stays put while the rest scrolls; it's painted in `--ewo-table-bg` (the raised surface).",
+              "name": "sticky"
+            },
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Rows light up under the mouse.",
+              "name": "hover"
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-table",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoTable",
+          "declaration": {
+            "name": "EwoTable",
+            "module": "table.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "theme-toggle.js",
       "declarations": [
         {
@@ -3727,6 +4761,614 @@
           "declaration": {
             "name": "EwoTicks",
             "module": "ticks.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "tile-grid.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Tiles on a grid of cells: drag one to move it (the tiles in its way make room), its edge to resize it.",
+          "name": "EwoTileGrid",
+          "cssProperties": [
+            {
+              "description": "A row's height (default 40px).",
+              "name": "--ewo-tile-grid-row"
+            },
+            {
+              "description": "The gap between cells (default 4px).",
+              "name": "--ewo-tile-grid-gap"
+            },
+            {
+              "description": "A tile's padding (default 6px).",
+              "name": "--ewo-tile-grid-pad"
+            },
+            {
+              "description": "A tile's background (default the raised background).",
+              "name": "--ewo-tile-grid-bg"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "grid"
+            },
+            {
+              "description": "Each empty cell's outline.",
+              "name": "cell"
+            },
+            {
+              "description": "The element's box around each child.",
+              "name": "tile"
+            },
+            {
+              "description": "Where a dragged tile will land.",
+              "name": "ghost"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The tiles, one child each, with `data-key`, `data-rect` (\"column row width height\"), and optionally `data-min` (\"width height\") and `data-label` (its name, if its text isn't one).",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[styles]"
+            },
+            {
+              "kind": "field",
+              "name": "#grid",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.grid')!"
+            },
+            {
+              "kind": "field",
+              "name": "#ghost",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.ghost')!"
+            },
+            {
+              "kind": "field",
+              "name": "#live",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "default": "this.root.querySelector('.live')!"
+            },
+            {
+              "kind": "field",
+              "name": "#tiles",
+              "privacy": "private",
+              "default": "new Map<Element, Tile>()"
+            },
+            {
+              "kind": "field",
+              "name": "#cells",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "#press",
+              "privacy": "private",
+              "type": {
+                "text": "Press | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#drag",
+              "privacy": "private",
+              "type": {
+                "text": "Drag | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#refocus",
+              "privacy": "private",
+              "type": {
+                "text": "string | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "default": "new MutationObserver(() => this.#build())"
+            },
+            {
+              "kind": "field",
+              "name": "#unlisten",
+              "privacy": "private",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#settling",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "columns"
+            },
+            {
+              "kind": "field",
+              "name": "compact"
+            },
+            {
+              "kind": "field",
+              "name": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "layout",
+              "type": {
+                "text": "Tiles"
+              },
+              "description": "Every shown tile's rect by key, as the page set them.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#items",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLElement[]"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#key",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "el",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#rect",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Rect | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "el",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#min",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "[number, number]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "el",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#name",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "el",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#byKey",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#options",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#build",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#tileOf",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#rows",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "used",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#tile",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Tile"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#label",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#keydown",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                },
+                {
+                  "name": "tile",
+                  "type": {
+                    "text": "Tile"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#down",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                },
+                {
+                  "name": "tile",
+                  "type": {
+                    "text": "Tile"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#cancelPress",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#escape",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#pitch",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Pitch"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#lift",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "press",
+                  "type": {
+                    "text": "Press"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#preview",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "tiles",
+                  "type": {
+                    "text": "Tiles"
+                  }
+                },
+                {
+                  "name": "d",
+                  "type": {
+                    "text": "Drag"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#show",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "r",
+                  "type": {
+                    "text": "Rect | null"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#glide",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "tiles",
+                  "type": {
+                    "text": "Tile[]"
+                  }
+                },
+                {
+                  "name": "rectOf",
+                  "type": {
+                    "text": "(tile: Tile) => Rect | undefined"
+                  }
+                },
+                {
+                  "name": "before",
+                  "default": "this.#drawn(tiles)"
+                }
+              ],
+              "description": "Puts tiles at new rects and lets each glide there from where it's drawn now (FLIP): its new\nplace measured without its translate, then the difference undone and let go."
+            },
+            {
+              "kind": "method",
+              "name": "#drawn",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "tiles",
+                  "default": "[...this.#tiles.values()]"
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#scroll",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#end",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "drop",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#commit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "text": "Arranged"
+                  }
+                },
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "action",
+                  "type": {
+                    "text": "'move' | 'resize'"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#settle",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "before",
+                  "type": {
+                    "text": "Map<Tile, DOMRect>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "innerHTML",
+              "type": {
+                "text": "string"
+              },
+              "default": "'<div class=\"grid\" part=\"grid\" role=\"group\"><div class=\"ghost\" part=\"ghost\" hidden><span></span></div></div><div class=\"live\" role=\"status\" aria-live=\"polite\"></div><span id=\"help\" hidden></span>'"
+            }
+          ],
+          "events": [
+            {
+              "description": "`detail: { layout, key, moved, how, action }` when a tile is dropped or stepped somewhere new: `layout` is every tile's new rect by key, `moved` the other tiles that made room, `how` 'free', 'swap' or 'push', `action` 'move' or 'resize'.",
+              "name": "change"
+            },
+            {
+              "description": "`detail: { key }` when a tile gets the focus (a click or a tap selects it).",
+              "name": "tile-focus"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Names the grid."
+            },
+            {
+              "name": "columns",
+              "type": {
+                "text": "number"
+              },
+              "description": "The grid's columns (default 12)."
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Only shown: no dragging, no keys, no spare row."
+            },
+            {
+              "name": "compact",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Gaps close after every change: each tile rises as far as it can."
+            }
+          ],
+          "superclass": {
+            "name": "EwoElement",
+            "module": "/packages/elements/src/base"
+          },
+          "tagName": "ewo-tile-grid",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "tile"
+        },
+        {
+          "kind": "variable",
+          "name": "mode"
+        },
+        {
+          "kind": "variable",
+          "name": "touch"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EwoTileGrid",
+          "declaration": {
+            "name": "EwoTileGrid",
+            "module": "tile-grid.js"
           }
         }
       ]

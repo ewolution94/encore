@@ -9,8 +9,9 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# The server has no dependencies; the runtime is Node, ffmpeg (Alpine's has LAME and Opus) and the
-# built app. Encore's state is one SQLite file in /data; staging and the library are mounts.
+# The server has no dependencies; the runtime is Node, ffmpeg (Alpine's has LAME and Opus), the
+# built app and Folio's config helper (Dashboard's defaults). Encore's state is one SQLite file in
+# /data; staging and the library are mounts.
 FROM node:24-alpine
 RUN apk add --no-cache ffmpeg
 WORKDIR /app
@@ -18,6 +19,7 @@ ENV NODE_ENV=production PORT=8080 TZ=Europe/Berlin ENCORE_STAGING=/staging ENCOR
 COPY --from=build /app/dist ./dist
 COPY server ./server
 COPY shared ./shared
+COPY vendor/ewo/elements/config-server.js vendor/ewo/elements/config-core.js ./vendor/ewo/elements/
 COPY package.json ./
 RUN mkdir -p /data && chown node:node /data
 USER node

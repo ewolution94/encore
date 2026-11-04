@@ -85,6 +85,7 @@ so no one's music is in the repo.
 | `ENCORE_ACCESS_TEAM`, `ENCORE_ACCESS_AUD` | unset | Cloudflare Access; unset means unchecked (local only) |
 | `ENCORE_TG_BOT_TOKEN`, `ENCORE_TG_CHAT_ID` | unset | the "ready to check" message; unset means off |
 | `ENCORE_PUBLIC_URL` | `https://encore.ewolution.cloud` | links in that message |
+| `DASHBOARD_URL` | unset | Dashboard's apps' port, `http://dashboard:8081` on the NAS: the language and theme a device that hasn't picked starts from (the family's, or Encore's own). Unset or down: the built-in ones, as before |
 
 `/healthz` answers 503 when the scan loop hasn't finished a scan for a few minutes.
 

@@ -1,0 +1,8 @@
+{
+  "app": "encore",
+  "version": 1,
+  "settings": {
+    "lang": { "family": true },
+    "theme": { "family": true }
+  }
+}

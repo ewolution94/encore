@@ -1,5 +1,12 @@
 export { EwoSegmented, type SegmentedOption } from './segmented';
 export { EwoSwitch } from './switch';
+export { EwoButton } from './button';
+export { EwoField } from './field';
+export { EwoTable } from './table';
+export { EwoReorder } from './reorder';
+export { moveItem } from './reorder-math';
+export { EwoTileGrid } from './tile-grid';
+export { arrange as arrangeTiles, compact as compactTiles, firstFree as firstFreeTile, pack as packTiles, hasGaps as tilesHaveGaps, type Rect as TileRect, type Tiles } from './tile-grid-math';
 export { EwoSlider } from './slider';
 export { snap, valueAt, fractionOf, scaleOf, type Scale as SliderScale } from './slider-scale';
 export { EwoBadge } from './badge';

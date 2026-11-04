@@ -10,7 +10,7 @@ export type ThemeChoice = 'system' | 'light' | 'dark';
  * @attr {'system' | 'light' | 'dark'} theme - The stored theme choice.
  * @attr {string} language-label - Overrides "Language" / "Sprache" (the words follow <html lang>).
  * @attr {string} theme-label - Overrides "Theme" / "Design".
- * @attr {string} system-label - Overrides "System" (both rows).
+ * @attr {string} system-label - Overrides "Default" / "Standard" (both rows): the value `system`, whatever the family or the device says.
  * @attr {string} light-label - Overrides "Light" / "Hell".
  * @attr {string} dark-label - Overrides "Dark" / "Dunkel".
  * @fires language-change - `detail: { value }` after a pick; store it, apply it through themeShift.
